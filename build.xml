@@ -1,0 +1,65 @@
+<project basedir="." default="antwar" name="api">
+	<target name="init" description="设置初始化打 war 包需要的路径变量">
+		<property name="name" value="api" />
+		<property name="src" value="${basedir}/src" />
+		<property name="lib" value="${basedir}/WebContent/WEB-INF/lib" />
+		<property name="webapp" value="${basedir}/WebContent" />
+		<property name="packages" value="com.*" />
+
+		<property name="build.src" value="${basedir}/build/src" />
+		<property name="build.dest" value="${basedir}/build/WEB-INF/classes" />
+		<property name="buildwar.dest" value="${basedir}/build/${name}" />
+		<property name="build.javadocs" value="${basedir}/build/doc" />
+		<property name="jar.dest" value="${basedir}/build/jar" />
+		<property name="war.dest" value="${basedir}/build/war" />
+
+		<property name="tomcat.home" value="" />
+		<property name="j2eelib.dir" value="" />
+
+		<path id="classpath">
+			<fileset dir="${lib}">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
+	</target>
+
+	<target name="prepare" depends="init" description="创建打包需要的路径，拷贝源文件到打包路径下">
+		<mkdir dir="${build.src}" />
+		<mkdir dir="${build.dest}" />
+		<mkdir dir="${buildwar.dest}" />
+		<mkdir dir="${jar.dest}" />
+		<mkdir dir="${war.dest}" />
+		<copy encoding="utf-8" todir="${build.dest}">
+			<fileset dir="${src}">
+				<include name="**/*.properties" />
+				<include name="**/*.xml" />
+			</fileset>
+		</copy>
+		<copy encoding="utf-8" todir="${buildwar.dest}">
+			<fileset dir="${webapp}">
+				<exclude name="**/classes/**" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="build" depends="prepare" description="编译 java 文件，拷贝 properties 属性配置文件到编译后的路径下">
+		<javac fork="true" executable="D:/Program Files/Java/jdk1.8.0_60/bin/javac" includeAntRuntime="no" encoding="utf-8" debug="on" srcdir="${src}" destdir="${build.dest}">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+	<target name="antwar" depends="clean,build" description="打 war 包，不将 java 文件打入包内">
+		<war warfile="${war.dest}/${name}.war" webxml="${buildwar.dest}/WEB-INF/web.xml">
+			<lib dir="${lib}" />
+			<classes dir="${build.dest}" />
+			<fileset dir="${buildwar.dest}" />
+		</war>
+	</target>
+
+	<target name="clean" depends="init" description="清除打包用临时文件">
+		<delete dir="${build.src}" />
+		<delete dir="${build.dest}" />
+		<delete dir="${buildwar.dest}" />
+		<delete dir="${war.dest}" />
+		<delete dir="${jar.dest}" />
+	</target>
+</project>
