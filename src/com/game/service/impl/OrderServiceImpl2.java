@@ -7,7 +7,7 @@ import com.game.dao.OrderDao2;
 import com.game.entity.EcsOrderInfo;
 import com.game.service.OrderService2;
 
-@Service("orderService")
+@Service("orderService2")
 public class OrderServiceImpl2 implements OrderService2{
 
 	@Autowired

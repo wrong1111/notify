@@ -74,60 +74,6 @@ public class DBhelper {
 					conn = null;
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
-				e2.printStackTrace();
-			}
-		}
-	}
-
-	public static void initParameMap() {
-		if (conn == null) {
-			conn = getConn();
-		}
-		Map<String, String> map1 = new HashMap<String, String>();
-		Map<String, String> map2 = new HashMap<String, String>();
-
-		try {
-			String sql = "select * from t_sys_dict where status = '1' ";
-			ps = conn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			while (rs.next()) {
-				String key = rs.getString("dictname").trim();
-				String value = rs.getString("dictvalue").trim();
-				// 替换已经存在静态变量
-//				if (key.startsWith("sms")) {
-					// Constants.smsmap.put(key, value);
-					map1.put(key, value);
-//				} else {
-					// Constants.parametermap.put( key ,value);
-					map2.put(key, value);
-//				}
-			}
-			if(map1!=null && !map1.isEmpty()){
-				Constants.smsmap = map1;
-			}
-			if(map2!=null && !map2.isEmpty()){
-				Constants.parametermap = map2;
-			}
-			rs.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (rs != null) {
-					rs.close();
-					rs = null;
-				}
-				if (ps != null) {
-					ps.close();
-					ps = null;
-				}
-				if (conn != null) {
-					conn.close();
-					conn = null;
-				}
-			} catch (Exception e2) {
-				// TODO: handle exception
 				e2.printStackTrace();
 			}
 		}
@@ -149,33 +95,6 @@ public class DBhelper {
 			if(map!=null && !map.isEmpty()){
 				Constants.configmap = map;
 			}
-
-			/*
-			sql = "select * from t_sys_dict where status = '1' ";
-			ps = conn.prepareStatement(sql);
-			rs = ps.executeQuery();
-			Map<String, String> map1 = new HashMap<String, String>();
-			Map<String, String> map2 = new HashMap<String, String>();
-			while (rs.next()) {
-				String key = rs.getString("dictname");
-				String value = rs.getString("dictvalue");
-				// 替换已经存在静态变量
-//				if (key.startsWith("sms")) {
-					// Constants.smsmap.put(key, value);
-					// System.out.println(value);
-					map1.put(key, value);
-//				} else {
-					// Constants.parametermap.put( key ,value);
-					map2.put(key, value);
-//				}
-			}
-			if(map1!=null && !map1.isEmpty()){
-				Constants.smsmap = map1;
-			}
-			if(map2!=null && !map2.isEmpty()){
-				Constants.parametermap = map2;
-			}
-			*/
 			rs.close();
 		} catch (Exception e) {
 			e.printStackTrace();
