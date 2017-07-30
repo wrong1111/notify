@@ -132,15 +132,15 @@ public class BaseAction {
 			paramap.put("status","9002#version"+Constants.getParamterkey("9002"));
 			 return paramap;
 		}
-//		TSysPartner tp = Constants.getPartner(partnerid);
-//		if(tp == null){
-//			paramap.put("status","9003#"+Constants.getParamterkey("9003"));
-//			return paramap;
-//		}
-//		if(new Date().after(tp.getEndtime())){
-//			paramap.put("status","9010#"+"【-"+tp.getPartnername()+"】"+Constants.getParamterkey("9010"));
-//			return paramap;
-//		}
+		TSysPartner tp = Constants.getPartner(partnerid);
+		if(tp == null){
+			paramap.put("status","9003#"+Constants.getParamterkey("9003"));
+			return paramap;
+		}
+		if(new Date().after(tp.getEndtime())){
+			paramap.put("status","9010#"+"【-"+tp.getPartnername()+"】"+Constants.getParamterkey("9010"));
+			return paramap;
+		}
 		String signString = PropertiesUtil.getValue("pay.application.signstring");
 		md5str = md5str+signString;
 		paramap.put("md5str", signString);
@@ -384,7 +384,6 @@ public class BaseAction {
 	public Object callback2(String callback,Map<String,Object> resultmap,HttpServletRequest request,HttpServletResponse response){
 		if(StringUtils.isBlank(callback)){
 			Object obj = JSONObject.toJSONString(resultmap, SerializerFeature.WriteMapNullValue);
-//			Object obj = JSON.toJSONString(resultmap);
 			return obj;
 		} 
 		try {
