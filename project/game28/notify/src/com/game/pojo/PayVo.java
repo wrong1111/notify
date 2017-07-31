@@ -30,6 +30,14 @@ public class PayVo implements Serializable,Cloneable {
 	private Date noticelastdatetime;
 	private String noticestr;
 	
+	private String result;
+	
+	public String getResult() {
+		return result;
+	}
+	public void setResult(String result) {
+		this.result = result;
+	}
 	public String getQrcode() {
 		return qrcode;
 	}

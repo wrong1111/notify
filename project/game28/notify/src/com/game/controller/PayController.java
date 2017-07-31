@@ -107,6 +107,11 @@ public class PayController extends BaseAction {
 					return callback2(requestdata.get("callback"), result, request, response);
 				}
 
+				if(jsondata.get("orderno").toString().length() >20) {
+					result.put("status", "9008");
+					result.put("msg", "orderno" + Constants.parametermap.get("9008")+"["+20+"]");
+					return callback2(requestdata.get("callback"), result, request, response);
+				}
 				if (jsondata.get("noticeurl") == null || StringUtils.isBlank(jsondata.get("noticeurl").toString())) {
 					result.put("status", "9002");
 					result.put("msg", "noticeurl" + Constants.parametermap.get("9002"));
@@ -132,15 +137,12 @@ public class PayController extends BaseAction {
 					return callback2(requestdata.get("callback"), result, request, response);
 				}
 
-				BigDecimal max = BigDecimal.valueOf(3000);
-				TSysConfig config = sysService.findByKey("recharge.max.value");
-				if (config != null && StringUtils.isNotBlank(config.getKeyvalue())) {
-					max = new BigDecimal(config.getKeyvalue());
-				}
-				if (max.compareTo(new BigDecimal(money)) > 0) {
+				BigDecimal max = new BigDecimal(PropertiesUtil.getValue("pay.order.maxmoney"));
+				 
+				if (max.compareTo(new BigDecimal(money)) < 0 ) {
 					result.put("status", "1031");
 					result.put("msg",
-							StringUtils.replaceOnce(Constants.getParamterkey("1031"), "X", config.getKeyvalue()));
+							StringUtils.replaceOnce(Constants.getParamterkey("1031"), "X", max.toPlainString()));
 					return callback2(requestdata.get("callback"), result, request, response);
 				}
 				
@@ -153,11 +155,11 @@ public class PayController extends BaseAction {
 				if(playpay.startsWith("0#")) {
 					
 					int payRandomFlag = 0 ;
-					config = sysService.findByKey("pay.random.flag");
+					TSysConfig config = sysService.findByKey("pay.channel.selector");
 					if(config!=null && StringUtils.isNotBlank(config.getKeyvalue())){
 						payRandomFlag = Integer.valueOf(config.getKeyvalue()).intValue();
 					}
-					log.error("[recharge],pay.random.flag=>"+payRandomFlag+",config.value=>"+config.getKeyvalue());
+					log.error("[recharge],pay.channel.selector=>"+payRandomFlag+",config.value=>"+config.getKeyvalue());
 					
 					String[] str = StringUtils.splitPreserveAllTokens(playpay,"#");
 					// 生成支付信息
@@ -169,7 +171,7 @@ public class PayController extends BaseAction {
 					payvo.setMoney(new BigDecimal(money));//分为单位
 					payvo.setNoticeurl(jsondata.get("noticeurl").toString());
 					payvo.setRequestip(super.getIpAddr(request));
-					payvo.setOrderno(jsondata.get("orderno").toString());
+					payvo.setOrderno(memno+"-"+jsondata.get("orderno").toString());
 					TPayRecord record = payService.createTPayRecord(change(payvo));
 					   
 					int day = Calendar.getInstance(Locale.CHINESE).get(Calendar.DAY_OF_MONTH);
@@ -253,8 +255,8 @@ public class PayController extends BaseAction {
 							    record.setQrcodeurl(data.get("img").toString());
 							    record.setPaystr(postdata.toString());
 							    record.setPayresult("SUCCESS");
+							    record.setChannel(payvo.getPaychannel());
 							    payService.updateTPayRecord(record);
-							    
 								result.put("data",JSON.toJSON(data));
 								return callback2(requestdata.get("callback"), result, request, response);
 								 
@@ -307,12 +309,12 @@ public class PayController extends BaseAction {
 			d.put("orderno", data.get("orderNo"));
 			String codeurl = data.get("codeUrl").toString();
 			codeurl = new String(Base64Util.decode(codeurl),"UTF-8");
-			String file = Constants.getConfigkey("common.file.path");
-			String path_ = QRCodeUtil.buildcodeurl(Constants.getConfigkey("pay.imgage.domain"),
-					file,StringUtil.mkdirect("/pay/qrcode"),
-					codeurl, file+"/logo.jpg",StringUtil.mkfilename("jpg"));
-			log.error("recharge->img["+path_+"]merNO=["+merNo+"],codeurl["+codeurl+"]");
-			d.put("img",path_);
+//			String file = Constants.getConfigkey("common.file.path");
+//			String path_ = QRCodeUtil.buildcodeurl(Constants.getConfigkey("pay.imgage.domain"),
+//					file,StringUtil.mkdirect("/pay/qrcode"),
+//					codeurl, file+"/logo.jpg",StringUtil.mkfilename("jpg"));
+//			log.error("recharge->img["+path_+"]merNO=["+merNo+"],codeurl["+codeurl+"]");
+			d.put("img",codeurl);
 			String imgurl = data.get("imgUrl").toString();
 			d.put("imgurl", imgurl);
 			if(StringUtils.isNotBlank(imgurl)){
@@ -359,13 +361,13 @@ public class PayController extends BaseAction {
 						String mount = obj.getString("totalAmount");
 						String keyCode = obj.getString("keyCode");
 						d.put("orderno", orderId);
-						String file = Constants.getConfigkey("common.file.path");
-						String path_ = QRCodeUtil.buildcodeurl(Constants.getConfigkey("pay.imgage.domain"),
-								file,StringUtil.mkdirect("/pay/qrcode"),
-								payurl, file+"/logo.jpg",StringUtil.mkfilename("jpg"));
-						log.error("recharge->img["+path_+"],keyCode=["+keyCode+"],payurl["+payurl+"],payimg["+payImg+"],mount["+mount+"]分");
-						d.put("img",path_);
-						d.put("imgurl", payurl);
+//						String file = Constants.getConfigkey("common.file.path");
+//						String path_ = QRCodeUtil.buildcodeurl(Constants.getConfigkey("pay.imgage.domain"),
+//								file,StringUtil.mkdirect("/pay/qrcode"),
+//								payurl, file+"/logo.jpg",StringUtil.mkfilename("jpg"));
+						log.error("recharge->img["+payurl+"],keyCode=["+keyCode+"],payurl["+payurl+"],payimg["+payImg+"],mount["+mount+"]分");
+						d.put("img",payurl);
+						d.put("imgurl", payImg);
 						d.put("returncode", "1");
 					}else{
 						d.put("ok", "9999");

@@ -420,9 +420,6 @@ public class Posturl {
 			}
 		 CloseableHttpResponse response = httpclient.execute(httppost);
 		 int statusOk = response.getStatusLine().getStatusCode();
-		 if(logger.isInfoEnabled()){
-	        	logger.info(url+"result-statusCode=>>"+statusOk);
-	     }
         if(statusOk == HttpStatus.SC_OK){
         	HttpEntity entity = response.getEntity();
         	BufferedInputStream instream = new BufferedInputStream(entity.getContent()); 
@@ -434,9 +431,7 @@ public class Posturl {
         }else{
         	logger.error(url+"result->网络异常.."+statusOk);
         }
-        if(logger.isInfoEnabled()){
-        	logger.info(url+"result->"+sb.toString());
-        }
+        logger.info(url+"statusok["+statusOk+"]result["+sb.toString()+"]");
 		}catch(Exception e){
 			e.printStackTrace();
 		}finally{
@@ -449,23 +444,6 @@ public class Posturl {
 			}
 		}
 		return sb.toString();
-//		PostMethod post = new PostMethod(url);
-//		// 设置请求的内容直接从文件中读�?
-//		HttpClient httpclient = new HttpClient();
-//		httpclient.getParams().setContentCharset("UTF-8");
-//		String resultstring = "";
-//		try {
-//			if(mp!=null && mp.size()>0){
-//				post.setRequestEntity(new StringRequestEntity(JSON.toJSONString(mp),
-//					contentType, charset));
-//			}
-//			int result = httpclient.executeMethod(post);
-//			resultstring = post.getResponseBodyAsString();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		post.releaseConnection();
-//		return resultstring;
 	}
 	public static String postRequestJson(String url,String jsonstring,String contentType,String charset){
 		if (StringUtils.isBlank(charset)) {
@@ -474,29 +452,44 @@ public class Posturl {
 		if (StringUtils.isBlank(contentType)) {
 			contentType = "application/json;charset=" + charset;
 		}
-		PostMethod post = new PostMethod(url);
-		// 设置请求的内容直接从文件中读�?
-		HttpClient httpclient = new HttpClient();
-		httpclient.getParams().setContentCharset(charset);
-		String resultstring = "";
-		try {
-			if(StringUtils.isNotBlank(jsonstring)){
-				post.setRequestEntity(new StringRequestEntity(JSON.toJSONString(jsonstring),
-					contentType, charset));
-			}
-			int statusOk = httpclient.executeMethod(post);
-			 if(logger.isInfoEnabled()){
-		        	logger.info(url+"result-statusCode=>>"+statusOk);
-		     }
-			resultstring = post.getResponseBodyAsString();
-			 if(logger.isInfoEnabled()){
-		        	logger.info(url+"result=>>"+resultstring);
-		     }
-		} catch (Exception e) {
+		StringBuilder sb = new StringBuilder();
+		CloseableHttpClient httpclient = HttpClientBuilder.create().build();
+		HttpPost httppost = new HttpPost(url);
+		 //配置请求的超时设置
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setConnectionRequestTimeout(Timeout)
+				.setConnectTimeout(Timeout)  
+				.setSocketTimeout(Timeout).build();
+        httppost.setConfig(requestConfig);
+		httppost.addHeader("Content-Type", contentType); 
+		try{
+		 httppost.setEntity(new StringEntity(JSON.toJSONString(jsonstring),charset));
+		 CloseableHttpResponse response = httpclient.execute(httppost);
+		 int statusOk = response.getStatusLine().getStatusCode();
+        if(statusOk == HttpStatus.SC_OK){
+        	HttpEntity entity = response.getEntity();
+        	BufferedInputStream instream = new BufferedInputStream(entity.getContent()); 
+	        byte[] chars = new byte[2048];
+	        int len=0;
+	        while((len=instream.read(chars))!=-1){
+	        	sb.append(new String(chars,0,len,charset));
+	        }
+        }else{
+        	logger.error(url+"result->网络异常.."+statusOk);
+        }
+        logger.info(url+"statusok["+statusOk+"]result["+sb.toString()+"]");
+		}catch(Exception e){
 			e.printStackTrace();
+		}finally{
+			httppost.releaseConnection();
+			try {
+				httpclient.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		post.releaseConnection();
-		return resultstring;
+		return sb.toString();
 	}	
 	public static String postRequest(String url, String xmlstring,String contentType, String charset) {
 		if (StringUtils.isBlank(charset)) {
@@ -505,21 +498,41 @@ public class Posturl {
 		if (StringUtils.isBlank(contentType)) {
 			contentType = "text/html;charset=" + charset;
 		}
-		PostMethod post = new PostMethod(url);
-		// 设置请求的内容直接从文件中读�?
-		HttpClient httpclient = new HttpClient();
-		httpclient.getParams().setContentCharset("UTF-8");
-		String resultstring = "";
-		try {
-			post.setRequestEntity(new StringRequestEntity(xmlstring,
-					contentType, charset));
-			int result = httpclient.executeMethod(post);
-			resultstring = post.getResponseBodyAsString();
-		} catch (Exception e) {
+		StringBuilder sb = new StringBuilder();
+		CloseableHttpClient httpclient = HttpClientBuilder.create().build();
+		HttpPost httppost = new HttpPost(url);
+		postRequestconfig(httppost);
+		httppost.addHeader("Content-Type", contentType); 
+		try{
+			if(StringUtils.isNotBlank(xmlstring)) {
+				httppost.setEntity(new StringEntity(xmlstring,charset));
+			}
+		 CloseableHttpResponse response = httpclient.execute(httppost);
+		 int statusOk = response.getStatusLine().getStatusCode();
+        if(statusOk == HttpStatus.SC_OK){
+        	HttpEntity entity = response.getEntity();
+        	BufferedInputStream instream = new BufferedInputStream(entity.getContent()); 
+	        byte[] chars = new byte[2048];
+	        int len=0;
+	        while((len=instream.read(chars))!=-1){
+	        	sb.append(new String(chars,0,len,charset));
+	        }
+        }else{
+        	logger.error(url+"result->网络异常.."+statusOk);
+        }
+        logger.info(url+"statusok["+statusOk+"]result["+sb.toString()+"]");
+		}catch(Exception e){
 			e.printStackTrace();
+		}finally{
+			httppost.releaseConnection();
+			try {
+				httpclient.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		post.releaseConnection();
-		return resultstring;
+		return sb.toString();
 	}
 	
 	public static void getFile(String fileurl, String destFileName)  
@@ -561,7 +574,6 @@ public class Posturl {
 		CloseableHttpClient httpclient = HttpClientBuilder.create().build();
         HttpPost httppost = new HttpPost(url); 
         postRequestconfig(httppost);
-        
         try {
         	HttpEntity entityfile = MultipartEntityBuilder.create()  
         			.addBinaryBody("file", new File(file), ContentType.DEFAULT_BINARY, file).addTextBody("filename",filename)  
@@ -569,9 +581,6 @@ public class Posturl {
         	httppost.setEntity(entityfile);  
 	    	HttpResponse response = httpclient.execute(httppost);
 			int statusOk = response.getStatusLine().getStatusCode();
-			if(logger.isInfoEnabled()){
-		        	logger.info(url+"result-statusCode=>>"+statusOk);
-		    }
 	        if(statusOk == HttpStatus.SC_OK){
 	        	HttpEntity entity = response.getEntity();
 	        	BufferedInputStream instream = new BufferedInputStream(entity.getContent()); 
@@ -583,9 +592,7 @@ public class Posturl {
 	        }else{
 	        	logger.error(url+"result->网络异常.."+statusOk);
 	        }
-	        if(logger.isInfoEnabled()){
-	        	logger.info(url+"result->"+sb.toString());
-	        }
+	        logger.info(url+",statusOk["+statusOk+"],file["+file+"],filename["+filename+"],result["+sb.toString()+"]");
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

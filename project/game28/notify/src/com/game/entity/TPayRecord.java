@@ -12,6 +12,10 @@ import javax.persistence.Table;
 @Entity
 @Table(name="t_pay_record")
 public class TPayRecord extends BaseEntity{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	Integer id;
 	String memno;
 	BigDecimal money;

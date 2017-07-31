@@ -14,6 +14,8 @@ public interface UserDao extends IEntityDao<Serializable>{
 	
 	public TPayRecord findByOrder(String orderno);
 	
-	public Page findNotify2Send(TPayRecord record,int page ,int pagesize);
+	public Page findNotify2Send(String status,int page ,int pagesize);
+	
+	public TPayRecord findByNotifyId(Integer id);
 	
 }

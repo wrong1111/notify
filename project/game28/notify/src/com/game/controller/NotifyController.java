@@ -1,8 +1,8 @@
 package com.game.controller;
 
 import java.io.PrintWriter;
-import java.math.BigDecimal;
 import java.net.URLDecoder;
+import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -10,12 +10,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.alibaba.fastjson.JSONObject;
-import com.game.pojo.TMemMoneyRecordVo;
+import com.game.pojo.NotifyVo;
+import com.game.serverutil.excutor.NotifyParam;
+import com.game.serverutil.excutor.NotifyQueue;
+import com.game.serverutil.excutor.NotifyTask;
+import com.game.serverutil.excutor.NotifyThread;
+import com.game.service.OrderService2;
+import com.game.service.PayService;
 import com.game.utils.PropertiesUtil;
 import com.game.utils.StringUtil;
 import com.game.utils.XMLUtil;
@@ -27,6 +34,18 @@ import com.game.utils.wanrong.weixin.RequestSign;
 public class NotifyController extends BaseAction{
 
 
+	@Autowired
+	NotifyParam notifyParam;
+	
+	@Autowired
+	NotifyQueue notifyQueue;
+	
+	@Autowired
+	PayService payService;
+	
+	@Autowired
+	OrderService2 orderService2;
+	
 	@RequestMapping("/weixinwr")
 	public String weixinwr(HttpServletRequest request, HttpServletResponse response){
 		PrintWriter pw = null;
@@ -43,28 +62,35 @@ public class NotifyController extends BaseAction{
 						String sign=jsonmap.get("sign").toString();;
 						JSONObject data = (JSONObject)jsonmap.get("data");
 						log.error("[recharge-weixinpay]->data["+data+"]");
-						//Map<String,Object> datamap = (Map<String, Object>) JSON.parse(data);
-						//JSONObject datamap = JSONObject.parse(data);
+						 
+						String tradeno = data.getString("orderId");
+						String money = data.getString("totalAmount");
+						String status = data.getString("status");
+						String keyCode = data.getString("keyCode");
+						
+						NotifyVo vo = new NotifyVo();
+						vo.setMerchantNo(keyCode);
+						vo.setNotifyTimes(0);
+						vo.setCreateTime(new Date());
+						vo.setMerchantOrderNo(tradeno);
+						vo.setLimitNotifyTimes(notifyParam.getMaxNotifyTime());
+						vo.setStatus("1".equals(status)?"0000":"1111");
+						vo.setResponseDesc("1".equals(status)?"交易成功":"交易失败");
+						vo.setNoticestr(jsonobject);//上游接口通知的字符串
 						if(RequestSign.checkSign(data.toJSONString(),sign, "sign")){
-							String tradeno = data.getString("orderId");
-							String money = data.getString("totalAmount");
-							String status = data.getString("status");
-							String keyCode = data.getString("keyCode");
+							//修改入库操作
+							vo = payService.updatePayReceive(vo);
 							if("1".equals(status)){
-								TMemMoneyRecordVo vo = new TMemMoneyRecordVo();
-								vo.setTradeno(tradeno);
-								vo.setMoney(new BigDecimal(money));//入库时，已经乘100了。
-								vo.setSuc("1");
 								log.error("[recharge--weixinpay["+keyCode+"]-充值成功]");
-								//修改入库
-								//是否是商城订单，处理商城订单
-								//进入通知队列
-								
 							}else{
 								log.error("[recharge-weixinpay]-待支付>data["+data+"]");
 							}
+							NotifyThread.tasks.add(new NotifyTask(payService,vo,notifyQueue,notifyParam));
+							
 							pw.write("SUCCESS");
 						}else{
+							//修改入库操作
+							vo = payService.updatePayReceive(vo);
 							log.error("[recharge-weixinpay]-校验未通过>data["+data+"]");
 							pw.write("SUCCESS");
 						}
@@ -104,37 +130,37 @@ public class NotifyController extends BaseAction{
 			if(StringUtils.isNotBlank(result)){
 					result = URLDecoder.decode(result, "utf-8");
 					Map<String,Object> data = StringUtil.parseString(result);
-					String responseCode = data.get("respCode").toString();//应答码
-					String tradeno = data.get("orderNo").toString();
-					String money  = data.get("transAmt").toString();//交易以分为单位
-					String respDesc = data.get("respDesc").toString();
-					String returncode = "1";
-					String merNo = data.get("merNo").toString();
-					//String sign = data.get("signature").toString();
-					//data.remove("signature");
 					String validstr = StringUtil.buildstr((TreeMap)data);
-					//boolean b = RSAUtil.verifyByKeyPath(validstr, sign, PropertiesUtil.getValue("wanrong.public_key_path"), "UTF-8");
 					String publicKeyPath = PropertiesUtil.getValue("wr."+name+".public_key_path");
 					boolean b = SignUtils.verferSignData(validstr,publicKeyPath);
-					if(log.isInfoEnabled()){
-						log.info(b+"--wrong.validstr-->"+validstr+"|merNo="+merNo+",publicKeyPath="+publicKeyPath);
-					}
+					log.info("["+b+"]--wrong.validstr-->"+validstr+"|publicKeyPath="+publicKeyPath);
 					if(b){
+						String responseCode = data.get("respCode").toString();//应答码
+						String tradeno = data.get("orderNo").toString();
+						String respDesc = data.get("respDesc").toString();
+						String merNo = data.get("merNo").toString();
+						
+						NotifyVo vo = new NotifyVo();
+						vo.setMerchantNo(merNo);
+						vo.setNotifyTimes(0);
+						vo.setCreateTime(new Date());
+						vo.setMerchantOrderNo(tradeno);
+						vo.setLimitNotifyTimes(notifyParam.getMaxNotifyTime());
+						vo.setStatus("0000");
+						vo.setResponseDesc(respDesc);
+						vo.setNoticestr(result);//上游接口通知的字符串
+						//修改入库操作
+						vo = payService.updatePayReceive(vo);
 						if("0000".equals(responseCode)){
-							TMemMoneyRecordVo vo = new TMemMoneyRecordVo();
-							vo.setTradeno(tradeno);
-							vo.setMoney(new BigDecimal(money));//入库时，已经乘100了。
-							vo.setSuc(returncode);
 							log.error("wrong-"+name+"-recharge【"+name+"充值成功】-merNO="+merNo);
-							//修改入库状态。
-							//判断是否是商城订单，还需要修改商城订单。
-							//进入通知队列。
-							response.getWriter().write("SUCCESS");
-							return null;
 						}else{
+							//通知业务失败或者状态不正常
 							log.error("wrong."+name+".result-->状态不是成功["+data.toString()+"]");
-							
 						}
+						//进入通知队列。
+						
+						response.getWriter().write("SUCCESS");
+						return null;
 				}else{
 					log.error("wrong."+name+".sing->数据校验未通过["+result+"]");
 				}
