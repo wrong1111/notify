@@ -56,27 +56,27 @@ public class NotifyController extends BaseAction{
 			if(StringUtils.isNotBlank(jsonobject)){
 				Map<String,Object> jsonmap = JSONObject.parseObject(jsonobject);
 				String code = jsonmap.get("code").toString();
+				String sign=jsonmap.get("sign").toString();;
+				JSONObject data = (JSONObject)jsonmap.get("data");
+				log.error("[recharge-weixinpay]->data["+data+"]");
+				
+				String tradeno = data.getString("orderId");
+				String money = data.getString("totalAmount");
+				String status = data.getString("status");
+				String keyCode = data.getString("keyCode");
+				
+				boolean success =(boolean)jsonmap.get("success");
+				NotifyVo vo = new NotifyVo();
+				vo.setMerchantNo(keyCode);
+				vo.setNotifyTimes(0);
+				vo.setCreateTime(new Date());
+				vo.setMerchantOrderNo(tradeno);
+				vo.setLimitNotifyTimes(notifyParam.getMaxNotifyTime());
+				vo.setStatus("1".equals(status) && success ?"0000":"1111");
+				vo.setResponseDesc(("1".equals(status)?"交易成功":"交易失败")+jsonmap.get("success"));
+				vo.setNoticestr(jsonobject);//上游接口通知的字符串
 				if(StringUtils.isNotBlank(code) && "0000".equals(code)){
-					boolean success =(boolean)jsonmap.get("success");
 					if(success){//交易成功，解析data
-						String sign=jsonmap.get("sign").toString();;
-						JSONObject data = (JSONObject)jsonmap.get("data");
-						log.error("[recharge-weixinpay]->data["+data+"]");
-						 
-						String tradeno = data.getString("orderId");
-						String money = data.getString("totalAmount");
-						String status = data.getString("status");
-						String keyCode = data.getString("keyCode");
-						
-						NotifyVo vo = new NotifyVo();
-						vo.setMerchantNo(keyCode);
-						vo.setNotifyTimes(0);
-						vo.setCreateTime(new Date());
-						vo.setMerchantOrderNo(tradeno);
-						vo.setLimitNotifyTimes(notifyParam.getMaxNotifyTime());
-						vo.setStatus("1".equals(status)?"0000":"1111");
-						vo.setResponseDesc("1".equals(status)?"交易成功":"交易失败");
-						vo.setNoticestr(jsonobject);//上游接口通知的字符串
 						if(RequestSign.checkSign(data.toJSONString(),sign, "sign")){
 							//修改入库操作
 							vo = payService.updatePayReceive(vo);
@@ -86,21 +86,26 @@ public class NotifyController extends BaseAction{
 								log.error("[recharge-weixinpay]-待支付>data["+data+"]");
 							}
 							NotifyThread.tasks.add(new NotifyTask(payService,vo,notifyQueue,notifyParam));
-							
 							pw.write("SUCCESS");
 						}else{
+							vo.setResponseDesc("校验失败");
 							//修改入库操作
 							vo = payService.updatePayReceive(vo);
+							NotifyThread.tasks.add(new NotifyTask(payService,vo,notifyQueue,notifyParam));
 							log.error("[recharge-weixinpay]-校验未通过>data["+data+"]");
 							pw.write("SUCCESS");
 						}
 					}else{
 						//业务失败
+						vo = payService.updatePayReceive(vo);
+						NotifyThread.tasks.add(new NotifyTask(payService,vo,notifyQueue,notifyParam));
 						log.error("[recharge-weixinpay]--业务失败->"+jsonobject);
 						pw.write("SUCCESS");
 					}
 				}else{
 					//业务失败
+					vo = payService.updatePayReceive(vo);
+					NotifyThread.tasks.add(new NotifyTask(payService,vo,notifyQueue,notifyParam));
 					log.error("[recharge-weixinpay]--code业务交易失败->"+jsonobject);
 					pw.write("SUCCESS");
 				}
@@ -154,6 +159,7 @@ public class NotifyController extends BaseAction{
 						if("0000".equals(responseCode)){
 							log.error("wrong-"+name+"-recharge【"+name+"充值成功】-merNO="+merNo);
 						}else{
+							vo.setStatus(responseCode);
 							//通知业务失败或者状态不正常
 							log.error("wrong."+name+".result-->状态不是成功["+data.toString()+"]");
 						}
