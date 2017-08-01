@@ -13,11 +13,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.game.entity.EcsOrderInfo;
 import com.game.entity.TPayRecord;
 import com.game.entity.TSysConfig;
 import com.game.pojo.PayVo;
@@ -51,6 +54,23 @@ public class PayController extends BaseAction {
 	@Autowired
 	OrderService2 orderService2;
 
+	@RequestMapping("/{orderno}/order")
+	public String order(@PathVariable(value="orderno") String orderno,Model model) {
+		EcsOrderInfo orderinfo = orderService2.findByOrdersn(orderno);
+		if(orderinfo!=null) {
+			model.addAttribute("status", "0");
+			model.addAttribute("desc", "成功");
+			model.addAttribute("money", orderinfo.getOrder_amount().toPlainString());
+			model.addAttribute("img", "");
+		}else {
+			model.addAttribute("status", "-1");
+			model.addAttribute("desc", "["+orderno+"]此订单不存在");
+			model.addAttribute("img", "-1");
+			model.addAttribute("money", "");
+		}
+		model.addAttribute("orderno", orderno);
+		return "/pay/pay-shop";
+	}
 	/**
 	 * @return 请求支付 参数必须要有
 	 *  money 金额 
