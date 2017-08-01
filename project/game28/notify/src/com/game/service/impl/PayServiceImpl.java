@@ -97,7 +97,7 @@ public class PayServiceImpl implements PayService{
 		//组成通知下游的字符串
 		HashMap<String,String> notifyStr = new HashMap<String,String>();
 		notifyStr.put("orderno", vo.getMerchantOrderNo());
-		notifyStr.put("status",vo.getStatus());
+		notifyStr.put("code",vo.getStatus());
 		notifyStr.put("requestDesc", vo.getResponseDesc());
 		notifyStr.put("money", String.valueOf(record.getMoney().intValue()));
 		
