@@ -2,6 +2,9 @@ package com.game.serverutil.excutor;
 
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
+
+@Component("notifyParam")
 public class NotifyParam {
 
     private Map<Integer, Integer> notifyParams;// 通知时间次数map
