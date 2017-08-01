@@ -28,8 +28,6 @@ import com.game.utils.Constants;
 import com.game.utils.MemcacheUtil;
 import com.game.utils.Posturl;
 import com.game.utils.PropertiesUtil;
-import com.game.utils.QRCodeUtil;
-import com.game.utils.StringUtil;
 import com.game.utils.common.BaseAction;
 import com.game.utils.encription.Base64Util;
 import com.game.utils.wanrong.SignUtils;

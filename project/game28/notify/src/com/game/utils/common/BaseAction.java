@@ -236,7 +236,7 @@ public class BaseAction {
 			HttpServletResponse response) {
 		return CookieUtil.getCookieValue(request, Constants.LOGIN_TOKEN_CODE);
 	}
-	public String getIpAddr(HttpServletRequest request) {
+	public static String getIpAddr(HttpServletRequest request) {
 		String ipAddress = null;
 		ipAddress = request.getHeader("x-forwarded-for");
 		if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
@@ -253,7 +253,6 @@ public class BaseAction {
 				try {
 					inet = InetAddress.getLocalHost();
 				} catch (UnknownHostException e) {
-					log.error("未知主机",e);
 				}
 				ipAddress = inet.getHostAddress();
 			}
@@ -273,7 +272,7 @@ public class BaseAction {
 	 * @param request
 	 * @return
 	 */
-	public String getReqestIp(HttpServletRequest request) {
+	public static String getReqestIp(HttpServletRequest request) {
 		// 有cnd 加速时也能取到用户ip地址
 		if (request == null)
 			return "";
