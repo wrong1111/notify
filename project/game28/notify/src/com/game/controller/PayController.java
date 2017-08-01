@@ -69,7 +69,7 @@ public class PayController extends BaseAction {
 			model.addAttribute("money", "");
 		}
 		model.addAttribute("orderno", orderno);
-		return "/pay/pay-shop";
+		return "/pay/shop";
 	}
 	/**
 	 * @return 请求支付 参数必须要有
