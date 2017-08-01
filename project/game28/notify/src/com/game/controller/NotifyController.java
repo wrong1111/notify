@@ -158,7 +158,7 @@ public class NotifyController extends BaseAction{
 							log.error("wrong."+name+".result-->状态不是成功["+data.toString()+"]");
 						}
 						//进入通知队列。
-						
+						NotifyThread.tasks.add(new NotifyTask(payService,vo,notifyQueue,notifyParam));
 						response.getWriter().write("SUCCESS");
 						return null;
 				}else{
