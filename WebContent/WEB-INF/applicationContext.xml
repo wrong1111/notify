@@ -21,10 +21,11 @@
        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd"
 	default-autowire="byName">
 
-<!-- spring过滤器，除了静态文件目录除外。提供外部访问 -->
-    <mvc:resources mapping="/css/**" location="/css/"/>
-	<mvc:resources mapping="/images/**" location="/img/"/>
-	<mvc:resources mapping="/js/**" location="/js/"/> 
+	<!-- spring过滤器，除了静态文件目录除外。提供外部访问 -->
+	<mvc:resources mapping="/css/**" location="/css/" />
+	<mvc:resources mapping="/images/**" location="/images/" />
+	<mvc:resources mapping="/js/**" location="/js/" />
+
 	<!-- @Aspectj -->
 	<aop:aspectj-autoproxy proxy-target-class="true" />
 	<!-- spring4.x json中文乱码处理，这一句一定要放在context:compent-scan前面 -->
@@ -40,12 +41,13 @@
 			</bean>
 		</mvc:message-converters>
 	</mvc:annotation-driven>
-	<context:component-scan
-		base-package="com.game">
+	<context:component-scan base-package="com.game">
 		<context:include-filter type="regex"
 			expression=".service..*" />
 		<context:include-filter type="regex"
 			expression=".controller..*" />
+		<context:include-filter type="regex"
+			expression=".serviceutil..*" />
 	</context:component-scan>
 	<context:annotation-config />
 	<!-- spring mvc Mapping -->
@@ -90,7 +92,7 @@
 	<!-- Hibernate -->
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-		<property name="dataSource"  ref="dataSource"/>
+		<property name="dataSource" ref="dataSource" />
 		<property name="packagesToScan">
 			<list>
 				<value>com.game.entity</value>
@@ -116,8 +118,7 @@
 	</bean>
 
 	<aop:config>
-		<aop:pointcut id="crudMethodsCoreMaster"
-			expression="execution(* com.game.service..*.*(..))" />
+		<aop:pointcut id="crudMethodsCoreMaster" expression="execution(* com.game.service..*.*(..))" />
 		<aop:advisor advice-ref="txAdviceCoreMaster" pointcut-ref="crudMethodsCoreMaster" />
 	</aop:config>
 
@@ -169,83 +170,26 @@
 		<aop:advisor advice-ref="druid-stat-interceptor"
 			pointcut-ref="druid-stat-pointcut" />
 	</aop:config>
-	
-	  <!-- 
-	<bean id="sessionFactory2"
-		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-		<property name="dataSource" ref="dataSource2"/>
-		<property name="packagesToScan">
-			<list>
-				<value>com.game.entity2</value>
-			</list>
-		</property>
-		<property name="hibernateProperties">
-			<value>
-				hibernate.dialect=org.hibernate.dialect.MySQLDialect
-				hibernate.show_sql=false
-				hibernate.format_sql=false
-				hibernate.cache.use_second_level_cache=false
-				hibernate.use_sql_comments=false
-				hibernate.jdbc.batch_size=100
-				hibernate.current_session_context_class=org.springframework.orm.hibernate5.SpringSessionContext
-			</value>
-		</property>
-	</bean>
-	<bean id="transactionManager2"
-		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-		<property name="dataSource" ref="dataSource2" />
-	</bean>
 
-	<aop:config>
-		<aop:pointcut id="crudMethodsCoreMaster2"
-			expression="execution(* com.game.service2..*.*(..))" />
-		<aop:advisor advice-ref="txAdviceCoreMaster2" pointcut-ref="crudMethodsCoreMaster2" />
-	</aop:config>
- 
 
-	<tx:advice id="txAdviceCoreMaster2" transaction-manager="transactionManager2">
-		<tx:attributes>
-			<tx:method name="mng*" propagation="REQUIRED" rollback-for="Exception" />
-			<tx:method name="create*" propagation="REQUIRED"
-				rollback-for="Exception" />
-			<tx:method name="do*" propagation="REQUIRED" rollback-for="Exception" />
-			<tx:method name="save*" propagation="REQUIRED"
-				rollback-for="Exception" />
-			<tx:method name="update*" propagation="REQUIRED"
-				rollback-for="Exception" />
-			<tx:method name="insert*" propagation="REQUIRED"
-				rollback-for="Exception" />
-			<tx:method name="delete*" propagation="REQUIRED"
-				rollback-for="Exception" />
-			<tx:method name="load*" read-only="true" />
-			<tx:method name="get*" read-only="true" />
-			<tx:method name="list*" read-only="true" />
-			<tx:method name="find*" read-only="true" />
-			<tx:method name="view*" read-only="true" />
-			<tx:method name="show*" read-only="true" />
-			<tx:method name="query*" read-only="true" />
-		</tx:attributes>
-	</tx:advice>
-	  编写spring 配置文件的配置多数源映射关系 -->  
-	  
 	<bean id="dataSource2" class="org.springframework.jndi.JndiObjectFactoryBean">
 		<property name="jndiName">
 			<value>java:comp/env/jdbc/game2</value>
 		</property>
 	</bean>
-    <bean id="dataSource" class="com.game.utils.common.dao.DynamicDataSource">  
-        <property name="targetDataSources">  
-            <map key-type="java.lang.String">  
-                <entry key="GAME" value-ref="dataSource1"></entry>  
-                <entry key="SHOP" value-ref="dataSource2"></entry>  
-            </map>  
-        </property>
-        <property name="defaultTargetDataSource" ref="dataSource1"></property>  
-    </bean>
-    
-    
-     
- <bean id="taskExecutor"
+	<bean id="dataSource" class="com.game.utils.common.dao.DynamicDataSource">
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<entry key="GAME" value-ref="dataSource1"></entry>
+				<entry key="SHOP" value-ref="dataSource2"></entry>
+			</map>
+		</property>
+		<property name="defaultTargetDataSource" ref="dataSource1"></property>
+	</bean>
+
+
+
+	<bean id="taskExecutor"
 		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<!-- 核心线程数 -->
 		<property name="corePoolSize" value="3" />
@@ -260,7 +204,7 @@
 			<bean class="java.util.concurrent.ThreadPoolExecutor$CallerRunsPolicy" />
 		</property>
 	</bean>
-	<!-- 配置通知参数, 时间单位分-->
+	<!-- 配置通知参数, 时间单位分 -->
 	<bean id="notifyParam" class="com.game.serverutil.excutor.NotifyParam">
 		<property name="notifyParams">
 			<map>
@@ -273,14 +217,11 @@
 		</property>
 		<property name="successValue" value="SUCCESS" />
 	</bean>
-    <!-- 拦截器 -->
+	
 	<mvc:interceptors>
-	     <mvc:interceptor>  
-	     <!-- 匹配的是url路径， 如果不配置或/**,将拦截所有的Controller -->
-	     　  <mvc:mapping path="/pay/**" />
-	         <!-- 拦截器类 --> 
-	         <bean class="com.game.serverutil.AuthorIntercepter"></bean>
-	     </mvc:interceptor>
-	        <!-- 当设置多个拦截器时，先按顺序调用preHandle方法，然后逆序调用每个拦截器的postHandle和afterCompletion方法 -->
-	</mvc:interceptors> 
+		<mvc:interceptor>
+			<mvc:mapping path="/pay/**" />
+			<bean class="com.game.serverutil.AuthorIntercepter"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
 </beans>
