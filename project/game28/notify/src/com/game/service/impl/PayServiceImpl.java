@@ -14,7 +14,9 @@ import com.game.entity.TPayRecord;
 import com.game.entity.TPayRecordLog;
 import com.game.pojo.NotifyVo;
 import com.game.service.PayService;
+import com.game.utils.Constants;
 import com.game.utils.common.dao.support.Page;
+import com.game.utils.encription.Md5Util;
 
 @Service("payService")
 public class PayServiceImpl implements PayService{
@@ -94,13 +96,17 @@ public class PayServiceImpl implements PayService{
 		
 		//组成通知下游的字符串
 		HashMap<String,String> notifyStr = new HashMap<String,String>();
-		notifyStr.put("memno", vo.getMerchantNo());
 		notifyStr.put("orderno", vo.getMerchantOrderNo());
 		notifyStr.put("status",vo.getStatus());
 		notifyStr.put("requestDesc", vo.getResponseDesc());
 		notifyStr.put("money", String.valueOf(record.getMoney().intValue()));
 		
-		vo.setNoticestr(JSON.toJSONString(notifyStr));
+		Map<String,Object> param = new HashMap<String,Object>();
+		param.put("partnerid", vo.getMerchantNo());
+		param.put("data", JSON.toJSON(notifyStr));
+		String md5str = Md5Util.md5_32(JSON.toJSONString(notifyStr)+Constants.getPartner(vo.getMerchantNo()).getSignestring());
+		param.put("sign", md5str);
+		vo.setNoticestr(JSON.toJSONString(param));
 		vo.setStatus("");
 		 
 		//更新通知下游字符串
