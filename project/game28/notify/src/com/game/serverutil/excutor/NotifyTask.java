@@ -84,7 +84,8 @@ public class NotifyTask implements Runnable, Delayed {
 			httppost.addHeader("Content-Type", "utf-8");
 			int responseStatus = 0;
 
-			httppost.setEntity(new StringEntity(JSON.toJSONString(notifyRecord.getNoticestr()), "utf-8"));
+			
+			httppost.setEntity(new StringEntity(notifyRecord.getNoticestr(), "utf-8"));
 			CloseableHttpResponse response = httpclient.execute(httppost);
 			responseStatus = response.getStatusLine().getStatusCode();
 			if (responseStatus == HttpStatus.SC_OK) {
