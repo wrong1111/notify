@@ -141,7 +141,7 @@ public class BaseAction {
 			paramap.put("status","9010#"+"【-"+tp.getPartnername()+"】"+Constants.getParamterkey("9010"));
 			return paramap;
 		}
-		String signString = PropertiesUtil.getValue("pay.application.signstring");
+		String signString = tp.getSignestring();//PropertiesUtil.getValue("pay.application.signstring");
 		md5str = md5str+signString;
 		paramap.put("md5str", signString);
 		if(log.isInfoEnabled()){
