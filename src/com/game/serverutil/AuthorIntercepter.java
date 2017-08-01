@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.alibaba.fastjson.JSON;
@@ -17,6 +18,7 @@ import com.game.utils.Constants;
 import com.game.utils.common.BaseAction;
 import com.game.utils.encription.Md5Util;
 
+@Component("authorIntercepter")
 public class AuthorIntercepter extends HandlerInterceptorAdapter{
 	Logger logger = Logger.getLogger(getClass());
 	
