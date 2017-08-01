@@ -1,6 +1,6 @@
-<project basedir="." default="antwar" name="api">
+<project basedir="." default="antwar" name="pay">
 	<target name="init" description="设置初始化打 war 包需要的路径变量">
-		<property name="name" value="api" />
+		<property name="name" value="pay" />
 		<property name="src" value="${basedir}/src" />
 		<property name="lib" value="${basedir}/WebContent/WEB-INF/lib" />
 		<property name="webapp" value="${basedir}/WebContent" />
