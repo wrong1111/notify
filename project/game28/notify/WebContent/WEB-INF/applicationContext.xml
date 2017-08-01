@@ -61,15 +61,15 @@
 		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
 		<property name="messageConverters">
 			<list>
-				<bean
-					class="org.springframework.http.converter.StringHttpMessageConverter">
-					<property name="supportedMediaTypes">
-						<list>
-							<value>text/plain;charset=UTF-8</value>
-							<value>text/html;charset=UTF-8</value>
-						</list>
-					</property>
-				</bean>
+<!-- 				<bean -->
+<!-- 					class="org.springframework.http.converter.StringHttpMessageConverter"> -->
+<!-- 					<property name="supportedMediaTypes"> -->
+<!-- 						<list> -->
+<!-- 							<value>text/plain;charset=UTF-8</value> -->
+<!-- 							<value>text/html;charset=UTF-8</value> -->
+<!-- 						</list> -->
+<!-- 					</property> -->
+<!-- 				</bean> -->
 				<bean
 					class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
 					<property name="supportedMediaTypes">
@@ -217,11 +217,12 @@
 		</property>
 		<property name="successValue" value="SUCCESS" />
 	</bean>
-	
+	<!--  
 	<mvc:interceptors>
 		<mvc:interceptor>
 			<mvc:mapping path="/pay/**" />
 			<bean class="com.game.serverutil.AuthorIntercepter"></bean>
 		</mvc:interceptor>
 	</mvc:interceptors>
+	-->
 </beans>
