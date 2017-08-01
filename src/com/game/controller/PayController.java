@@ -74,19 +74,7 @@ public class PayController extends BaseAction {
 				String paradata = requestdata.get("data");
 				Map<String, Object> jsondata = JSON.parseObject(paradata, HashMap.class);
 				
-				if (jsondata.get("memno") == null || StringUtils.isBlank(jsondata.get("memno").toString())) {
-					result.put("status", "9002");
-					result.put("msg", "memno" + Constants.parametermap.get("9002"));
-					return callback2(requestdata.get("callback"), result, request, response);
-				}
-				String memno = jsondata.get("memno").toString();
-				String str_memno = PropertiesUtil.getValue("pay.memno.one");
-				if(str_memno.indexOf(memno)==-1) {
-					result.put("status", "9003");
-					result.put("msg", memno + Constants.parametermap.get("9003"));
-					return callback2(requestdata.get("callback"), result, request, response);
-				}
-				
+				String memno = requestdata.get("partnerid");
 				if (jsondata.get("money") == null || StringUtils.isBlank(jsondata.get("money").toString())) {
 					result.put("status", "9002");
 					result.put("msg", "money" + Constants.parametermap.get("9002"));
