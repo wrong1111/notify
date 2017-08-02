@@ -31,7 +31,7 @@
 	}else{
 		ary.push(desc);
 	}
-	document.getElementById(jump).innerHTML= ary.join("");
+	document.getElementById("jump").innerHTML= ary.join("");
 </script>	
 </body>
 </html>
