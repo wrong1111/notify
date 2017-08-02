@@ -23,7 +23,7 @@ import com.game.utils.encription.Md5Util;
 public class AuthorIntercepter extends HandlerInterceptorAdapter{
 	Logger logger = Logger.getLogger(getClass());
 	
-	String[] IGNORE_URL = new String[] {"/notify/","/interface/test/"};
+	String[] IGNORE_URL = new String[] {"/notify/","/test/"};
 	
 	@Override
     public boolean preHandle(HttpServletRequest request,
