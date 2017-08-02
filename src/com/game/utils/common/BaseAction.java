@@ -108,51 +108,51 @@ public class BaseAction {
 		String partnerid =request.getParameter("partnerid");
 		String version = request.getParameter("version");
 		String key = request.getParameter("key");
-		String requestid = this.getReqestIp(request);
+		String requestid = this.getIpAddr(request);
 		Map<String,String> paramap = new HashMap<String,String>();
 		paramap.put("data",data);
 		paramap.put("partnerid",partnerid);
 		paramap.put("version",version);
 		paramap.put("key",key);
 		paramap.put("requestid", requestid);
-		if(log.isInfoEnabled()){
-			log.info("[baseAction.parseRequest.paramap] ==> "+paramap.toString());	
-		}
-		 
-		String md5str = data+partnerid+version;
-		if(StringUtils.isBlank(data)){
-			paramap.put("status","9002#data"+Constants.getParamterkey("9002"));
-			return paramap;
-		}
-		if(StringUtils.isBlank(partnerid)){
-			paramap.put("status","9002#partnerid"+Constants.getParamterkey("9002"));
-			return paramap;
-		}
-		if(StringUtils.isBlank(version)){
-			paramap.put("status","9002#version"+Constants.getParamterkey("9002"));
-			 return paramap;
-		}
-		TSysPartner tp = Constants.getPartner(partnerid);
-		if(tp == null){
-			paramap.put("status","9003#"+Constants.getParamterkey("9003"));
-			return paramap;
-		}
-		if(new Date().after(tp.getEndtime())){
-			paramap.put("status","9010#"+"【-"+tp.getPartnername()+"】"+Constants.getParamterkey("9010"));
-			return paramap;
-		}
-		String signString = tp.getSignestring();//PropertiesUtil.getValue("pay.application.signstring");
-		md5str = md5str+signString;
-		paramap.put("md5str", signString);
-		if(log.isInfoEnabled()){
-			log.info("[baseAction.validparameters.md5str] ==> "+md5str);	
-			log.info("【"+Md5Util.md5_32(md5str)+"】");
-		} 	
- 		if(key.equalsIgnoreCase(Md5Util.md5_32(md5str))){
-			 paramap.put("status","0#ok");
-			 return paramap;
- 		} 
- 	     paramap.put("status","9001#"+Constants.getParamterkey("9001"));
+//		if(log.isInfoEnabled()){
+//			log.info("[baseAction.parseRequest.paramap] ==> "+paramap.toString());	
+//		}
+//		 
+//		String md5str = data+partnerid+version;
+//		if(StringUtils.isBlank(data)){
+//			paramap.put("status","9002#data"+Constants.getParamterkey("9002"));
+//			return paramap;
+//		}
+//		if(StringUtils.isBlank(partnerid)){
+//			paramap.put("status","9002#partnerid"+Constants.getParamterkey("9002"));
+//			return paramap;
+//		}
+//		if(StringUtils.isBlank(version)){
+//			paramap.put("status","9002#version"+Constants.getParamterkey("9002"));
+//			 return paramap;
+//		}
+//		TSysPartner tp = Constants.getPartner(partnerid);
+//		if(tp == null){
+//			paramap.put("status","9003#"+Constants.getParamterkey("9003"));
+//			return paramap;
+//		}
+//		if(new Date().after(tp.getEndtime())){
+//			paramap.put("status","9010#"+"【-"+tp.getPartnername()+"】"+Constants.getParamterkey("9010"));
+//			return paramap;
+//		}
+//		String signString = tp.getSignestring();//PropertiesUtil.getValue("pay.application.signstring");
+//		md5str = md5str+signString;
+//		paramap.put("md5str", signString);
+//		if(log.isInfoEnabled()){
+//			log.info("[baseAction.validparameters.md5str] ==> "+md5str);	
+//			log.info("【"+Md5Util.md5_32(md5str)+"】");
+//		} 	
+// 		if(key.equalsIgnoreCase(Md5Util.md5_32(md5str))){
+//			 paramap.put("status","0#ok");
+//			 return paramap;
+// 		} 
+// 	     paramap.put("status","9001#"+Constants.getParamterkey("9001"));
  	     return paramap;
  	    
 		// paramap.put("status","0#ok");
