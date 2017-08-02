@@ -66,6 +66,8 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
 	        	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
 	        	return false;
 	        }
+			response.getWriter().write("您此次请求["+url+"]无权限!");
+			return false;
 		}
 		if(StringUtils.isBlank(partnerid)){
 			paramap.put("status","9002");
@@ -75,6 +77,8 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
 	        	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
 	        	return false;
 	        }
+			response.getWriter().write("您此次请求["+url+"]无权限!");
+			return false;
 		}
 		if(StringUtils.isBlank(version)){
 			paramap.put("status","9002");
@@ -84,6 +88,8 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
 	        	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
 	        	return false;
 	        }
+			response.getWriter().write("您此次请求["+url+"]无权限!");
+			return false;
 		}
 		TSysPartner tp = Constants.getPartner(partnerid);
 		if(tp == null){
@@ -94,6 +100,8 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
 	        	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
 	        	return false;
 	        }
+			response.getWriter().write("您此次请求["+url+"]无权限!");
+			return false;
 		}
 		if(new Date().after(tp.getEndtime())){
 			paramap.put("status","9010");
@@ -103,6 +111,8 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
 	        	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
 	        	return false;
 	        }
+			response.getWriter().write("您此次请求["+url+"]无权限!");
+			return false;
 		}
 		String signString = tp.getSignestring();//PropertiesUtil.getValue("pay.application.signstring");
 		md5str = md5str+signString;
@@ -117,7 +127,8 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
         	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
         	return false;
         }
-        return true;
+        response.getWriter().write("您此次请求["+url+"]无权限!");
+		return false;
     }
     
 }
