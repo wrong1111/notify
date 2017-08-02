@@ -42,7 +42,8 @@ import com.game.utils.wanrong.weixin.Weixinwanrong;
  * @author wrong1111 支付交换中心
  */
 
-@Controller("/pay")
+@Controller
+@RequestMapping("/pay")
 public class PayController extends BaseAction {
 
 	@Autowired
