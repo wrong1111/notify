@@ -17,7 +17,7 @@ import com.game.service.SysService;
 import com.game.utils.common.BaseAction;
 
 @Controller
-@RequestMapping("/interface/test")
+@RequestMapping("/test")
 public class TestController extends BaseAction {
 	
 	@Autowired
