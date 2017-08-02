@@ -30,7 +30,8 @@ import com.game.utils.common.BaseAction;
 import com.game.utils.wanrong.SignUtils;
 import com.game.utils.wanrong.weixin.RequestSign;
 
-@Controller("/notify")
+@Controller
+@RequestMapping("/notify")
 public class NotifyController extends BaseAction{
 
 
