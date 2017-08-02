@@ -382,7 +382,12 @@ public class StringUtil {
 		return string.replaceAll("'", "-").replaceAll("\"","-" ).replaceAll("\\s+", "");
 	}
 	
-	 public static String filterOffUtf8Mb4(String text) {
+	 /**
+	  * 直接删除特殊emoji表情符号
+	 * @param text
+	 * @return
+	 */
+	public static String filterOffUtf8Mb4(String text) {
 		 if(StringUtils.isBlank(text)) return "";
 		 //msg.replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", "");
 		 return  text.replaceAll("[^\\u0000-\\uFFFF]", "");   
@@ -579,9 +584,23 @@ public class StringUtil {
        }     
        return buffer.toString();     
     }  
+    
+    /** 
+     * 将emoji表情替换成* 
+     *  
+     * @param source 
+     * @return 过滤后的字符串 
+     */  
+    public static String filterEmoji(String source) {  
+        if(StringUtils.isNotBlank(source)){  
+            return source.replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", "*");  
+        }else{  
+            return source;  
+        }  
+    }  
 	public static void main(String[] args) {
 		String bb="This is a smiley \uD83C\uDFA6 face\uD860\uDD5D \uD860\uDE07 \uD860\uDEE2 \uD863\uDCCA \uD863\uDCCD \uD863\uDCD2 \uD867\uDD98 ";
-		System.out.println(StringUtil.replaceQuotes(StringUtil.filterOffUtf8Mb4(bb)));
+		System.out.println(StringUtil.replaceQuotes(StringUtil.filterEmoji(bb)));
 	}
 	
 }
