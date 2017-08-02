@@ -86,7 +86,7 @@ public class PayController extends BaseAction {
 		Map<String, Object> result = super.SUCESS();
 		// 通过解析request 获取参数 data,partnerid,service,time,version,key
 		final Map<String, String> requestdata = super.parseRequest(request);
-		result.put("partnerid", requestdata.get("partnerid"));
+		//result.put("partnerid", requestdata.get("partnerid"));
 		// 验证参数是否合法。 0#cefp
 		String resultstr = requestdata.get("status");
 		// 0#开头的为成功标识可以进行后续业务逻辑处理了。
