@@ -136,11 +136,11 @@
 		<property name="successValue" value="SUCCESS" />
 	</bean>
 	   
-<!-- 	<mvc:interceptors> -->
-<!-- 		<mvc:interceptor> -->
-<!-- 			<mvc:mapping path="/pay/**" /> -->
-<!-- 			<bean class="com.game.serverutil.AuthorIntercepter"></bean> -->
-<!-- 		</mvc:interceptor> -->
-<!-- 	</mvc:interceptors> -->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/pay/**" />
+			<bean class="com.game.serverutil.AuthorIntercepter"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
 	 
 </beans>
