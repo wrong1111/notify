@@ -256,6 +256,10 @@ public class PayController extends BaseAction {
 								result.put("status","-12");
 								result.put("msg","此业务上游不支持");
 								return callback2(requestdata.get("callback"), result, request, response);
+							}else if(data.get("ok")!=null && !"9999".equals(data.get("ok").toString())) {
+								result.put("status",data.get("code"));
+								result.put("msg",data.get("msg"));
+								return callback2(requestdata.get("callback"), result, request, response);
 							}else{
 								data.put("m",payvo.getMoney().toPlainString());
 								Object postdata = data.remove("postdata");
@@ -359,6 +363,7 @@ public class PayController extends BaseAction {
 				Map<String,Object> map = JSONObject.parseObject(result);
 				String code = map.get("code").toString();
 				String success = map.get("success").toString();
+				String msg = map.get("msg").toString();
 				if("0000".equals(code) && success.equals("true")){
 					String signs = map.get("sign").toString();
 					JSONObject obj =(JSONObject) map.get("data");
@@ -379,11 +384,15 @@ public class PayController extends BaseAction {
 						d.put("returncode", "1");
 					}else{
 						d.put("ok", "9999");
+						d.put("code",code);
+						d.put("msg", msg);
 						log.error("recharge-result->"+result);
 					}
 				}else{
 					 log.error("recharge-result->"+result);
-					d.put("ok", "9999");
+					d.put("ok", code);
+					d.put("code",code);
+					d.put("msg", msg);
 				}
 			}else{
 				log.error("recharge-->没有获取返回数据");
