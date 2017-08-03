@@ -20,7 +20,7 @@
        http://www.springframework.org/schema/mvc  
        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd"
 	default-autowire="byName">
- 
+ 	
 	<!-- Hibernate -->
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
@@ -38,7 +38,7 @@
 				hibernate.cache.use_second_level_cache=false
 				hibernate.use_sql_comments=false
 				hibernate.jdbc.batch_size=100
-				hibernate.current_session_context_class=org.springframework.orm.hibernate5.LocalSessionFactoryBean
+				hibernate.current_session_context_class=thread
 			</value>
 		</property>
 	</bean>
@@ -84,8 +84,26 @@
 			<value>java:comp/env/jdbc/game</value>
 		</property>
 	</bean>
+  
+	<bean id="dataSource2" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName">
+			<value>java:comp/env/jdbc/game2</value>
+		</property>
+	</bean>
+	<bean id="dataSource" class="com.game.utils.common.dao.DynamicDataSource">
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<entry key="GAME" value-ref="dataSource1"></entry>
+				<entry key="SHOP" value-ref="dataSource2"></entry>
+			</map>
+		</property>
+		<property name="defaultTargetDataSource" ref="dataSource1"></property>
+	</bean>
+	 
+	 
+ 
 
-	<bean id="druid-stat-interceptor"
+<bean id="druid-stat-interceptor"
 		class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor">
 	</bean>
 	<bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut"
@@ -103,19 +121,5 @@
 			pointcut-ref="druid-stat-pointcut" />
 	</aop:config>
 
-
-	<bean id="dataSource2" class="org.springframework.jndi.JndiObjectFactoryBean">
-		<property name="jndiName">
-			<value>java:comp/env/jdbc/game2</value>
-		</property>
-	</bean>
-	<bean id="dataSource" class="com.game.utils.common.dao.DynamicDataSource">
-		<property name="targetDataSources">
-			<map key-type="java.lang.String">
-				<entry key="GAME" value-ref="dataSource1"></entry>
-				<entry key="SHOP" value-ref="dataSource2"></entry>
-			</map>
-		</property>
-		<property name="defaultTargetDataSource" ref="dataSource1"></property>
-	</bean>
+	
 </beans>
