@@ -28,7 +28,7 @@ public class Weixinwanrong {
 		 param.put("keyCode", keycode);
 		 param.put("notifyUrl", notifyurl);
 		 param.put("orderDate", String.valueOf(System.currentTimeMillis()));
-		 param.put("orderDesc","支付-"+orderno );
+		 param.put("orderDesc",orderno );
 		 param.put("orderId", orderno);
 		 param.put("returnUrl", notifyurl);//目前返回地址未启用
 		 param.put("serviceType", "0");//公从号支付 0
