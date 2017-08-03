@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -46,6 +47,7 @@ import com.game.utils.wanrong.weixin.Weixinwanrong;
 @RequestMapping("/pay")
 public class PayController extends BaseAction {
 
+	Logger logger = Logger.getLogger(getClass());
 	@Autowired
 	SysService sysService;
 
@@ -88,14 +90,15 @@ public class PayController extends BaseAction {
 		final Map<String, String> requestdata = super.parseRequest(request);
 		//result.put("partnerid", requestdata.get("partnerid"));
 		// 验证参数是否合法。 0#cefp
-		String resultstr = requestdata.get("status");
+		logger.error(requestdata);
 		// 0#开头的为成功标识可以进行后续业务逻辑处理了。
 		try {
-			if (resultstr.startsWith("0#")) {
+			 
 				String paradata = requestdata.get("data");
 				Map<String, Object> jsondata = JSON.parseObject(paradata, HashMap.class);
 				
 				String memno = requestdata.get("partnerid");
+				result.put("parnterid", memno);
 				if (jsondata.get("money") == null || StringUtils.isBlank(jsondata.get("money").toString())) {
 					result.put("status", "9002");
 					result.put("msg", "money" + Constants.parametermap.get("9002"));
@@ -131,11 +134,11 @@ public class PayController extends BaseAction {
 					result.put("msg", "money必须大于0的正整数");
 					return callback2(requestdata.get("callback"), result, request, response);
 				}
-				if (new Integer(money) % 100 != 0) {
-					result.put("status", "9002");
-					result.put("msg", "money必须大于0的正整数");
-					return callback2(requestdata.get("callback"), result, request, response);
-				}
+//				if (new Integer(money) % 100 != 0) {
+//					result.put("status", "9002");
+//					result.put("msg", "money必须大于0的正整数");
+//					return callback2(requestdata.get("callback"), result, request, response);
+//				}
 
 				String channel = jsondata.get("channel").toString();
 				if (!("1".equals(channel) || "2".equals(channel))) {
@@ -169,6 +172,7 @@ public class PayController extends BaseAction {
 					log.error("[recharge],pay.channel.selector=>"+payRandomFlag+",config.value=>"+config.getKeyvalue());
 					
 					String[] str = StringUtils.splitPreserveAllTokens(playpay,"#");
+					playpay = str[1];
 					// 生成支付信息
 					PayVo payvo  = new PayVo();
 					payvo.setChannel(channel);
@@ -286,15 +290,12 @@ public class PayController extends BaseAction {
 					result.put("status", str[0]);
 					result.put("msg", str[1]);
 				}
-			} else {
-				result.put("status", "1");
-				result.put("msg", "md5校验未通过");
-			}
 		} catch (Exception e) {
 			result.put("status", "9999");
 			result.put("msg", e.getMessage());
+			e.printStackTrace();
 		}
-		return result;
+		return callback2(requestdata.get("callback"), result, request, response);
 	}
 	
 	
@@ -419,7 +420,7 @@ public class PayController extends BaseAction {
 						log.error("recharge-play微信账号切换-当前缓存账号[" + cacheCurCompany + "]");
 						Constants.WEIXIN_LAST_PAY_COMPANY_TIME = cacheCurCompany.toString();
 					}
-					String curCompanyCode = curCompany[0].substring(1) + "_WXF";
+					String curCompanyCode = "";
 					if ((StringUtils.isNotBlank(curCompany[0]) && conf1.getKeyvalue().indexOf(curCompany[0]) == -1)
 							|| Constants.WEIXIN_LAST_PAY_COMPANY_TIME.startsWith("_")
 							|| StringUtils.isBlank(curCompanyCode)) {
@@ -427,6 +428,7 @@ public class PayController extends BaseAction {
 						Constants.WEIXIN_LAST_PAY_COMPANY_TIME = playpay + "_" + System.currentTimeMillis() + "_1";
 						MemcacheUtil.put(memcachKey, Constants.WEIXIN_LAST_PAY_COMPANY_TIME);
 					} else {
+						curCompanyCode = curCompany[0].substring(1) + "_WXF";
 						long curLong = System.currentTimeMillis();
 						int curCount = Integer.valueOf(curCompany[2]);// 充值成功笔数，缓存的
 						if ((curLong - Long.valueOf(curCompany[1]) > 5 * 60 * 1000) || curCount + 1 > count) {
@@ -489,7 +491,7 @@ public class PayController extends BaseAction {
 						log.error("recharge-play支付宝账号切换-当前缓存账号[" + cacheCurCompany + "]");
 						Constants.ALIPAY_LAST_PAY_COMAPANY_TIME = cacheCurCompany.toString();
 					}
-					String curCompanyCode = curCompany[0].substring(1) + "_ZFB";
+					String curCompanyCode = "";
 					if ((StringUtils.isNotBlank(curCompany[0]) && conf1.getKeyvalue().indexOf(curCompany[0]) == -1)
 							|| Constants.ALIPAY_LAST_PAY_COMAPANY_TIME.startsWith("_")
 							|| StringUtils.isBlank(curCompanyCode)) {
@@ -497,6 +499,7 @@ public class PayController extends BaseAction {
 						Constants.ALIPAY_LAST_PAY_COMAPANY_TIME = playpay + "_" + System.currentTimeMillis() + "_1";
 						MemcacheUtil.put(memcachKey, Constants.ALIPAY_LAST_PAY_COMAPANY_TIME);
 					} else {
+						curCompanyCode  = curCompany[0].substring(1) + "_ZFB";
 						long curLong = System.currentTimeMillis();
 						int curCount = Integer.valueOf(curCompany[2]);// 充值成功笔数，缓存的
 						if ((curLong - Long.valueOf(curCompany[1]) > 5 * 60 * 1000) || curCount + 1 > count) {

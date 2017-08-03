@@ -18,7 +18,6 @@ import org.springframework.stereotype.Repository;
 import com.game.dao.UserDao;
 import com.game.entity.TPayRecord;
 import com.game.pojo.NotifyVo;
-import com.game.pojo.PayVo;
 import com.game.utils.common.dao.entity.HibernateEntityDao;
 import com.game.utils.common.dao.support.Page;
 

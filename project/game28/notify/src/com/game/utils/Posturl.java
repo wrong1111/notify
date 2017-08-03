@@ -49,7 +49,7 @@ import com.alibaba.fastjson.JSON;
 @SuppressWarnings("unused")
 public class Posturl {
 
-	static int Timeout = 15000;
+	static int Timeout = 30000;
 	static Logger logger = Logger.getLogger(Posturl.class);
 	
 	private static void getRequestconfig(HttpGet httpget,int second){

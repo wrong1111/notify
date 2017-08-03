@@ -33,7 +33,9 @@ public class PayServiceImpl implements PayService{
 
 	@Override
 	public TPayRecord createTPayRecord(TPayRecord record) {
-		return (TPayRecord) userDao.save(record);
+		Integer id = (Integer) userDao.save(record);
+		record.setId(id);
+		return record;
 	}
 
 	@Override
