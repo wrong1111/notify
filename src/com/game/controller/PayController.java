@@ -255,6 +255,8 @@ public class PayController extends BaseAction {
 							if(data.get("ok")!=null && "9999".equals(data.get("ok").toString())){
 								result.put("status","-12");
 								result.put("msg","此业务上游不支持");
+								Object postdata = data.remove("postdata");
+								record.setPaystr(postdata.toString());
 								 record.setPayresult("FAIL");
 								 record.setChannel(payvo.getPaychannel());
 								 payService.updateTPayRecord(record);
@@ -262,6 +264,8 @@ public class PayController extends BaseAction {
 							}else if(data.get("ok")!=null && !"9999".equals(data.get("ok").toString())) {
 								result.put("status",data.get("code"));
 								result.put("msg",data.get("msg"));
+								Object postdata = data.remove("postdata");
+								record.setPaystr(postdata.toString());
 								 record.setPayresult("FAIL");
 								 record.setChannel(payvo.getPaychannel());
 								 payService.updateTPayRecord(record);
