@@ -21,8 +21,7 @@
        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd"
 	default-autowire="byName">
 	
-	
-	<aop:aspectj-autoproxy />
+<aop:aspectj-autoproxy proxy-target-class="true"/>
 	<!-- spring过滤器，除了静态文件目录除外。提供外部访问 -->
 	<mvc:resources mapping="/css/**" location="/css/" />
 	<mvc:resources mapping="/images/**" location="/images/" />
@@ -46,12 +45,14 @@
 		<context:include-filter type="regex"
 			expression=".service..*" />
 		<context:include-filter type="regex"
+			expression=".dao..*" />
+		<context:include-filter type="regex"
 			expression=".controller..*" />
 		<context:include-filter type="regex"
 			expression=".serviceutil..*" />
 	</context:component-scan>
 	<context:annotation-config />
-	 
+	
 	<!-- support file upload -->
 	<bean id="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
@@ -88,24 +89,7 @@
 		<property name="suffix" value=".jsp" />
 	</bean>
 	 
-	<bean id="druid-stat-interceptor"
-		class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor">
-	</bean>
-	<bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut"
-		scope="prototype">
-		<property name="patterns">
-			<list>
-				<value>com.game.*.service.*</value>
-				<value>com.game.*.dao.*</value>
-			</list>
-		</property>
-	</bean>
-
-	<aop:config proxy-target-class="true">
-		<aop:advisor advice-ref="druid-stat-interceptor"
-			pointcut-ref="druid-stat-pointcut" />
-	</aop:config>
-
+	
 
 	<bean id="taskExecutor"
 		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
@@ -142,5 +126,5 @@
 			<bean class="com.game.serverutil.AuthorIntercepter"></bean>
 		</mvc:interceptor>
 	</mvc:interceptors>
-	 
+	
 </beans>
