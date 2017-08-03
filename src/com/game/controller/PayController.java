@@ -252,7 +252,7 @@ public class PayController extends BaseAction {
 								continue;
 							}
 							log.error("recharge-->"+JSON.toJSON(data));
-							if(data.get("ok")!=null && "9999".equals(data.get("ok").toString())){
+							if(data.get("code")!=null && "9999".equals(data.get("code").toString())){
 								result.put("status","-12");
 								result.put("msg","此业务上游不支持");
 								Object postdata = data.remove("postdata");
@@ -261,9 +261,9 @@ public class PayController extends BaseAction {
 								 record.setChannel(payvo.getPaychannel());
 								 payService.updateTPayRecord(record);
 								return callback2(requestdata.get("callback"), result, request, response);
-							}else if(data.get("ok")!=null && !"9999".equals(data.get("ok").toString())) {
+							}else if(data.get("code")!=null) {
 								result.put("status",data.get("code"));
-								result.put("msg",data.get("msg"));
+								result.put("msg","此业务上游不支持["+data.get("msg")+"]");
 								Object postdata = data.remove("postdata");
 								record.setPaystr(postdata.toString());
 								 record.setPayresult("FAIL");
@@ -349,7 +349,8 @@ public class PayController extends BaseAction {
 			d.put("returncode", "1");
 		}else{
 			log.error("recharge--result["+result+"]");
-			d.put("ok", "9999");
+			d.put("code", data.get("respCode").toString());
+			d.put("msg", data.get("respDesc").toString());
 		}
 		if(log.isInfoEnabled()){
 			log.info("recharge->["+d+"]");
@@ -393,14 +394,12 @@ public class PayController extends BaseAction {
 						d.put("imgurl", payImg);
 						d.put("returncode", "1");
 					}else{
-						d.put("ok", "9999");
 						d.put("code",code);
 						d.put("msg", msg);
 						log.error("recharge-result->"+result);
 					}
 				}else{
-					 log.error("recharge-result->"+result);
-					d.put("ok", code);
+					log.error("recharge-result->"+result);
 					d.put("code",code);
 					d.put("msg", msg);
 				}
