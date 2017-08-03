@@ -63,7 +63,7 @@ public class PayServiceImpl implements PayService{
 		if(StringUtils.isNotBlank(record.getChannel())) {
 			payrecord.setChannel(record.getChannel());
 		}
-		userDao.update(record);
+		userDao.update(payrecord);
 	}
 
 
