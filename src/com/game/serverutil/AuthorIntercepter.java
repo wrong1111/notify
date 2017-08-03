@@ -16,6 +16,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.game.entity.TSysPartner;
 import com.game.utils.Constants;
+import com.game.utils.StringUtil;
+import com.game.utils.XMLUtil;
 import com.game.utils.common.BaseAction;
 import com.game.utils.encription.Md5Util;
 
@@ -48,14 +50,46 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
         if(StringUtils.isNotBlank(charset)) {
         	response.setCharacterEncoding(charset);
         }
+        String data = "";
+        String partnerid = "";
+        String version = "";
+        String key = "";
         
-        String data = request.getParameter("data");
-		String partnerid =request.getParameter("partnerid");
-		String version = request.getParameter("version");
-		String key = request.getParameter("key");
+         data = request.getParameter("data");
+		 partnerid =request.getParameter("partnerid");
+		 version = request.getParameter("version");
+		 key = request.getParameter("key");
+		 
+		 Map<String,String> paramap = new HashMap<String,String>();
+        if(StringUtils.isBlank(data) && StringUtils.isBlank(partnerid)) {
+        	String jsonstr = XMLUtil.parseReq(request);
+        	Map<String,String> p  = null;
+        	if(StringUtils.isNotBlank(jsonstr)) {
+        		 p =  JSON.parseObject(jsonstr,HashMap.class);
+        	}
+	        if(p == null || p.size() <=0 ) {
+	        	paramap.put("status","9002");
+				paramap.put("partnerid","");
+				paramap.put("msg", "data"+Constants.getParamterkey("9002"));
+				if(StringUtils.isNotBlank(contentType) && contentType.indexOf("json")>-1) {
+		        	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
+		        	return false;
+		        }
+				response.getWriter().write("您此次请求["+url+"]无权限!");
+				return false;
+	        }
+	         data = p.get("data");
+	         partnerid = p.get("partnerid");
+	         version = p.get("version");
+	         key = p.get("key");
+        }else {
+	         data = request.getParameter("data");
+			 partnerid =request.getParameter("partnerid");
+			 version = request.getParameter("version");
+			 key = request.getParameter("key");
+        }
 		String requestip = BaseAction.getIpAddr(request);
 		logger.error("[AuthorIntercepter.preHandle],请求方法["+url+"],请求参数["+data+"],partnerid["+partnerid+"],version["+version+"],key["+key+"],requestid["+requestip+"]");
-		Map<String,String> paramap = new HashMap<String,String>();
 		String md5str = data+partnerid+version;
 		
 		if(StringUtils.isBlank(data)){

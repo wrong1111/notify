@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.CriteriaSpecification;
@@ -28,11 +28,8 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.SingleTableEntityPersister;
-import org.hibernate.query.NativeQuery;
-import org.hibernate.query.Query;
 import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.hibernate.transform.Transformers;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
@@ -56,8 +53,8 @@ public abstract class HibernateGenericDao2 extends HibernateSessionDao{
 	     try {
 	    	session = sessionFactory.openSession();
 	     }catch(Exception e) {
-	    	 session =  sessionFactory.getCurrentSession();
 	    	 logger.error("[session],error->"+e.getMessage(),e);
+	    	 session =  sessionFactory.getCurrentSession();
 	     }
 	     return session;
 	}
@@ -223,7 +220,7 @@ public abstract class HibernateGenericDao2 extends HibernateSessionDao{
 	 */
 	public Query createSQLQuery(String sql, Object... values) {
 		Assert.hasText(sql);
-		NativeQuery query = getSession().createNativeQuery(sql);
+		Query query = getSession().createSQLQuery(sql);
 		for (int i = 0; i < values.length; i++) {
 			query.setParameter(i, values[i]);
 		}
@@ -238,7 +235,7 @@ public abstract class HibernateGenericDao2 extends HibernateSessionDao{
 	 */
 	public Query createSQLQuery(String sql,Class classes ,Object... values) {
 		Assert.hasText(sql);
-		NativeQuery query = getSession().createNativeQuery(sql,classes);
+		Query query = getSession().createSQLQuery(sql).addEntity(classes);
 		for (int i = 0; i < values.length; i++) {
 			query.setParameter(i, values[i]);
 		}
@@ -254,7 +251,7 @@ public abstract class HibernateGenericDao2 extends HibernateSessionDao{
 	public Query createSQLQuery(String sql, Map<String, Object> map) {
 		Assert.hasText(sql);
 
-		NativeQuery query = getSession().createNativeQuery(sql);
+		Query query = getSession().createSQLQuery(sql);
 		if (map != null) {
 			for (String key : map.keySet()) {
 				query.setParameter(key, map.get(key));
@@ -272,7 +269,7 @@ public abstract class HibernateGenericDao2 extends HibernateSessionDao{
 	public  Query createSQLQuery(String sql,Class classes ,Map<String, Object> map) {
 		Assert.hasText(sql);
 
-		NativeQuery query = getSession().createNativeQuery(sql,classes);
+		Query query = getSession().createSQLQuery(sql).addEntity(classes);
 		if (map != null) {
 			for (String key : map.keySet()) {
 				query.setParameter(key, map.get(key));
@@ -282,7 +279,7 @@ public abstract class HibernateGenericDao2 extends HibernateSessionDao{
 	}
 	public Query createSQLQuery(String sql) {
 		Assert.hasText(sql);
-		Query query = getSession().createNativeQuery(sql);
+		Query query = getSession().createSQLQuery(sql);
 		return query;
 	}
 	/**
@@ -292,7 +289,7 @@ public abstract class HibernateGenericDao2 extends HibernateSessionDao{
 	 */
 	public Query createSQLQuery(String sql,Class classes) {
 		Assert.hasText(sql);
-		Query query = getSession().createNativeQuery(sql,classes);
+		Query query = getSession().createSQLQuery(sql).addEntity(classes);
 		return query;
 	}
 	/**
@@ -306,7 +303,7 @@ public abstract class HibernateGenericDao2 extends HibernateSessionDao{
 	 */
 	public List createSQLQueryToObj(String sql,Class classobj, Object... values) {
 		Assert.hasText(sql);
-		NativeQuery query = getSession().createNativeQuery(sql);
+		Query query = getSession().createSQLQuery(sql);
 		for (int i = 0; i < values.length; i++) {
 			query.setParameter(i, values[i]);
 		}
