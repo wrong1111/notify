@@ -255,10 +255,16 @@ public class PayController extends BaseAction {
 							if(data.get("ok")!=null && "9999".equals(data.get("ok").toString())){
 								result.put("status","-12");
 								result.put("msg","此业务上游不支持");
+								 record.setPayresult("FAIL");
+								 record.setChannel(payvo.getPaychannel());
+								 payService.updateTPayRecord(record);
 								return callback2(requestdata.get("callback"), result, request, response);
 							}else if(data.get("ok")!=null && !"9999".equals(data.get("ok").toString())) {
 								result.put("status",data.get("code"));
 								result.put("msg",data.get("msg"));
+								 record.setPayresult("FAIL");
+								 record.setChannel(payvo.getPaychannel());
+								 payService.updateTPayRecord(record);
 								return callback2(requestdata.get("callback"), result, request, response);
 							}else{
 								data.put("m",payvo.getMoney().toPlainString());
