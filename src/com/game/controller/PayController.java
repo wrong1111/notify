@@ -256,6 +256,7 @@ public class PayController extends BaseAction {
 								result.put("status","-12");
 								result.put("msg","此业务上游不支持");
 								Object postdata = data.remove("postdata");
+								record = new TPayRecord();
 								record.setPaystr(postdata.toString());
 								 record.setPayresult("FAIL");
 								 record.setChannel(payvo.getPaychannel());
@@ -265,6 +266,8 @@ public class PayController extends BaseAction {
 								result.put("status",data.get("code"));
 								result.put("msg","此业务上游不支持["+data.get("msg")+"]");
 								Object postdata = data.remove("postdata");
+								
+								 record = new TPayRecord();
 								record.setPaystr(postdata.toString());
 								 record.setPayresult("FAIL");
 								 record.setChannel(payvo.getPaychannel());
