@@ -182,7 +182,7 @@ public class PayController extends BaseAction {
 					payvo.setMoney(new BigDecimal(money));//分为单位
 					payvo.setNoticeurl(jsondata.get("noticeurl").toString());
 					payvo.setRequestip(super.getIpAddr(request));
-					payvo.setOrderno(memno+"-"+jsondata.get("orderno").toString());
+					payvo.setOrderno(jsondata.get("orderno").toString()+"-"+memno);
 					TPayRecord record = payService.createTPayRecord(change(payvo));
 					   
 					int day = Calendar.getInstance(Locale.CHINESE).get(Calendar.DAY_OF_MONTH);
@@ -272,6 +272,9 @@ public class PayController extends BaseAction {
 								return callback2(requestdata.get("callback"), result, request, response);
 							}else{
 								data.put("m",payvo.getMoney().toPlainString());
+								if(payvo.getOrderno().indexOf("-")>-1) {
+									data.put("orderno", StringUtils.splitPreserveAllTokens(payvo.getOrderno(),'-')[0]);
+								}
 								Object postdata = data.remove("postdata");
 							    log.info("[recharge]->"+data);
 							    record = new TPayRecord();
