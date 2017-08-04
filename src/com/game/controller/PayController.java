@@ -272,9 +272,6 @@ public class PayController extends BaseAction {
 								return callback2(requestdata.get("callback"), result, request, response);
 							}else{
 								data.put("m",payvo.getMoney().toPlainString());
-								if(payvo.getOrderno().indexOf("-")>-1) {
-									data.put("orderno", StringUtils.splitPreserveAllTokens(payvo.getOrderno(),'-')[0]);
-								}
 								Object postdata = data.remove("postdata");
 							    log.info("[recharge]->"+data);
 							    record = new TPayRecord();
@@ -285,6 +282,9 @@ public class PayController extends BaseAction {
 							    record.setPayresult("SUCCESS");
 							    record.setChannel(payvo.getPaychannel());
 							    payService.updateTPayRecord(record);
+							    if(payvo.getOrderno().indexOf("-")>-1) {
+							    	data.put("orderno", StringUtils.splitPreserveAllTokens(payvo.getOrderno(),'-')[0]);
+							    }
 								result.put("data",JSON.toJSON(data));
 								return callback2(requestdata.get("callback"), result, request, response);
 								 
