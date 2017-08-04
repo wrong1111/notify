@@ -99,6 +99,8 @@ public abstract class HibernateGenericDao extends HibernateSessionDao{
 	 */
 	public int saveOrUpdate(Object o) {
 		getSession().saveOrUpdate(o);
+		getSession().flush();
+		getSession().evict(o);
 		return 1;
 	}
 
@@ -112,10 +114,15 @@ public abstract class HibernateGenericDao extends HibernateSessionDao{
 
 	
 	public Object merge(Object o){
-		return getSession().merge(o);
+		Object b = getSession().merge(o);
+		getSession().flush();
+		getSession().evict(o);
+		return b;
 	}
 	public int update(Object o) {
 		getSession().update(o);
+		getSession().flush();
+		getSession().evict(o);
 		return 1;
 	}
 
@@ -123,33 +130,36 @@ public abstract class HibernateGenericDao extends HibernateSessionDao{
 		int count =0;
 		for (Object entity : objects) {
 			getSession().saveOrUpdate(entity);
-			if ((count++) % 50 == 0 ) { //50, same as the JDBC batch size  
+			if ((count++) % 150 == 0 ) { //50, same as the JDBC batch size  
 				getSession().flush();    
 				getSession().clear();   
 			  }    
 		}
+		getSession().flush();
 	}
 	
 	public <T> void saveAll(List<T> objects) {
 		int count =0;
 		for (Object entity : objects) {
 			getSession().save(entity);
-			if ((count++) % 50 == 0 ) { //50, same as the JDBC batch size  
+			if ((count++) % 150 == 0 ) { //50, same as the JDBC batch size  
 				getSession().flush();    
 				getSession().clear();   
 			  }    
 		}
+		getSession().flush();
 	}
 	
 	public <T> void updateAll(List<T> objects) {
 		int count =0;
 		for (Object entity : objects) {
 			getSession().update(entity);
-			if ((count++) % 50 == 0 ) { //50, same as the JDBC batch size  
+			if ((count++) % 150 == 0 ) { //50, same as the JDBC batch size  
 				getSession().flush();    
 				getSession().clear();   
 			  }    
 		}
+		getSession().flush();
 	}
 
 	/**
