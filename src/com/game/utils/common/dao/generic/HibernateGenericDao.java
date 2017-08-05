@@ -47,15 +47,17 @@ public abstract class HibernateGenericDao extends HibernateSessionDao{
 	protected Log logger = LogFactory.getLog(getClass());
 	 
 	public Session getSession() {
-		 DynamicDataSourceHolder.setDataSourceType(DynamicDataSource.GAME);
+		// DynamicDataSourceHolder.setDataSourceType(DynamicDataSource.GAME);
 	     SessionFactory sessionFactory = super.getSessionFactory();
 	     Session session = null;
 	     try {
-	    	session = sessionFactory.openSession();
+	    	 session =  sessionFactory.getCurrentSession();
 	     }catch(Exception e) {
 	    	 logger.error("[session],error->"+e.getMessage(),e);
-	    	 session =  sessionFactory.getCurrentSession();
+	    	 session = sessionFactory.openSession();
 	     }
+	     //提交事务时，刷新缓存。
+	   //  session.setFlushMode(FlushMode.COMMIT);
 	     return session;
 	}
 
@@ -99,8 +101,6 @@ public abstract class HibernateGenericDao extends HibernateSessionDao{
 	 */
 	public int saveOrUpdate(Object o) {
 		getSession().saveOrUpdate(o);
-		getSession().flush();
-		getSession().evict(o);
 		return 1;
 	}
 
@@ -115,14 +115,10 @@ public abstract class HibernateGenericDao extends HibernateSessionDao{
 	
 	public Object merge(Object o){
 		Object b = getSession().merge(o);
-		getSession().flush();
-		getSession().evict(o);
 		return b;
 	}
 	public int update(Object o) {
 		getSession().update(o);
-		getSession().flush();
-		getSession().evict(o);
 		return 1;
 	}
 
@@ -135,7 +131,6 @@ public abstract class HibernateGenericDao extends HibernateSessionDao{
 				getSession().clear();   
 			  }    
 		}
-		getSession().flush();
 	}
 	
 	public <T> void saveAll(List<T> objects) {
@@ -147,7 +142,6 @@ public abstract class HibernateGenericDao extends HibernateSessionDao{
 				getSession().clear();   
 			  }    
 		}
-		getSession().flush();
 	}
 	
 	public <T> void updateAll(List<T> objects) {
@@ -159,7 +153,6 @@ public abstract class HibernateGenericDao extends HibernateSessionDao{
 				getSession().clear();   
 			  }    
 		}
-		getSession().flush();
 	}
 
 	/**

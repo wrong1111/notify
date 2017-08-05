@@ -19,7 +19,20 @@ public class DBhelper {
 	public static PreparedStatement ps = null;
 	public static ResultSet rs = null;
 
-	// get connection
+	 
+	//get conection from db_shop
+	public static Connection getConn2() {
+		try {
+			Context initContext = new InitialContext();
+			Context envContext = (Context) initContext.lookup("java:comp/env");
+			DataSource ds = (DataSource) envContext.lookup("jdbc/game2");
+			Connection conn = ds.getConnection();
+			return conn;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	public static Connection getConn() {
 		try {
 			Context initContext = new InitialContext();

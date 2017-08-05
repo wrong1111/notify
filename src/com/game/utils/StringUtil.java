@@ -599,7 +599,7 @@ public class StringUtil {
         }  
     }  
 	public static void main(String[] args) {
-		String bb="This is a smiley \uD83C\uDFA6 face\uD860\uDD5D \uD860\uDE07 \uD860\uDEE2 \uD863\uDCCA \uD863\uDCCD \uD863\uDCD2 \uD867\uDD98 ";
+		String bb="This is  smiley \uD83C\uDFA6 face\uD860\uDD5D \uD860\uDE07 \uD860\uDEE2 \uD863\uDCCA \uD863\uDCCD \uD863\uDCD2 \uD867\uDD98 ";
 		System.out.println(StringUtil.replaceQuotes(StringUtil.filterEmoji(bb)));
 	}
 	
