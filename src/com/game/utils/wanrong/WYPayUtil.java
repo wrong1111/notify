@@ -160,7 +160,7 @@ public class WYPayUtil  {
 			datamap.put("orderDate",new SimpleDateFormat("yyyyMMdd").format(new Date()));
 			datamap.put("returnUrl",returnurl);
 			datamap.put("notifyUrl",notifyurl);
-			datamap.put("transAmt",String.valueOf(paymoney.intValue()*100));
+			datamap.put("transAmt",String.valueOf(paymoney.intValue()));
 			datamap.put("commodityName", "支付"+tradeno);
 			datamap.put("subMchId",subMchId);
 			String sign =  SignUtils.signData(datamap,privateKeyPath);
