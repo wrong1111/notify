@@ -64,7 +64,7 @@ public class UserDaoImpl extends HibernateEntityDao<Serializable> implements Use
 		List<Object> param = new ArrayList<Object>();
 		if (StringUtils.isNotBlank(status)) {
 			if ("notify".equals(status)) {
-				strBuilder.append(" and r.noticeresult in ('HTTPOK','HTTPERR')  and r.noticetimes <= 4 ");
+				strBuilder.append(" and r.noticeresult in ('HTTPOK','HTTPERR')  and r.noticetimes < 4 ");
 			} else {
 				strBuilder.append(" and r.noticeresult = ? ");
 				param.add(status);
