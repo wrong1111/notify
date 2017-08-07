@@ -19,7 +19,6 @@ public class InitBeanFactory implements ApplicationListener<ContextRefreshedEven
 	
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
-		System.out.println("=============");
 		synchronized(InitBeanFactory.class) {  
 	        if(event.getApplicationContext().getParent() != null && initialled) {  
 	            return;  
