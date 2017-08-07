@@ -126,5 +126,5 @@
 			<bean class="com.game.serverutil.AuthorIntercepter"></bean>
 		</mvc:interceptor>
 	</mvc:interceptors>
-	
+	<bean class="com.game.serverutil.excutor.InitBeanFactory"></bean>
 </beans>
