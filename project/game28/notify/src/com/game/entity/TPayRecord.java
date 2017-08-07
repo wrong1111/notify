@@ -19,6 +19,7 @@ public class TPayRecord extends BaseEntity{
 	private static final long serialVersionUID = 1L;
 	Integer id;
 	String memno;
+	String paymemno;
 	BigDecimal money;
 	String channel;
 	String orderno;
@@ -176,6 +177,12 @@ public class TPayRecord extends BaseEntity{
 	}
 	public void setNoticestr(String noticestr) {
 		this.noticestr = noticestr;
+	}
+	public String getPaymemno() {
+		return paymemno;
+	}
+	public void setPaymemno(String paymemno) {
+		this.paymemno = paymemno;
 	}
 	
 	

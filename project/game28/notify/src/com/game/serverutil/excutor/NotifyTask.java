@@ -81,7 +81,7 @@ public class NotifyTask implements Runnable, Delayed {
 			RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(20000)
 					.setConnectTimeout(20000).setSocketTimeout(20000).build();
 			httppost.setConfig(requestConfig);
-			httppost.addHeader("Content-Type", "utf-8");
+			httppost.addHeader("Content-Type", "application/json;charset=utf-8");
 			int responseStatus = 0;
 
 			

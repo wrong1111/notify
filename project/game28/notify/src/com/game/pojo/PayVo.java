@@ -22,6 +22,7 @@ public class PayVo implements Serializable,Cloneable {
 	private String memno;
 	
 	
+	
 	///===
 	private String qrcode;
 	private String qrcodeurl;
@@ -29,6 +30,7 @@ public class PayVo implements Serializable,Cloneable {
 	private Date noticedatetime;
 	private Date noticelastdatetime;
 	private String noticestr;
+	private String paymemno;
 	
 	private String result;
 	
@@ -130,6 +132,12 @@ public class PayVo implements Serializable,Cloneable {
 	}
 	public void setNoticepageurl(String noticepageurl) {
 		this.noticepageurl = noticepageurl;
+	}
+	public String getPaymemno() {
+		return paymemno;
+	}
+	public void setPaymemno(String paymemno) {
+		this.paymemno = paymemno;
 	}
 	
 	
