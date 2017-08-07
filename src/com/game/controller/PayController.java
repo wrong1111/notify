@@ -182,7 +182,7 @@ public class PayController extends BaseAction {
 					payvo.setMoney(new BigDecimal(money));//分为单位
 					payvo.setNoticeurl(jsondata.get("noticeurl").toString());
 					payvo.setRequestip(super.getIpAddr(request));
-					payvo.setOrderno(jsondata.get("orderno").toString()+"-"+memno);
+					payvo.setOrderno(jsondata.get("orderno").toString());
 					TPayRecord record = payService.createTPayRecord(change(payvo));
 					   
 					int day = Calendar.getInstance(Locale.CHINESE).get(Calendar.DAY_OF_MONTH);
@@ -210,6 +210,7 @@ public class PayController extends BaseAction {
 								String notifyurl = PropertiesUtil.getValue("wr.wx.notifyurl");
 								String posturl = PropertiesUtil.getValue("wr.wx.payurl");
 								String usercode = PropertiesUtil.getValue("wr."+prefx+".usercode");
+								payvo.setPaymemno(usercode);
 								if(payRandomFlag == 3){//连接除浦发以外的通道
 									data = requestWXWR(posturl,tradeno,String.valueOf(payvo.getMoney().intValue()),usercode,notifyurl,"2");							
 								}else{ 
@@ -230,15 +231,18 @@ public class PayController extends BaseAction {
 									String posturl =  PropertiesUtil.getValue("wr."+prefx+".url");
 									String subMchId =PropertiesUtil.getValue("wr."+prefx+".ali.subMchId");
 									data =  requestWR(posturl,merNo,subMchId,returnurl,notifyurl,privateKeyPath,publicKeyPath,payvo.getMoney().toPlainString(), tradeno, productid, "10", c);
+									payvo.setPaymemno(merNo);
 								}else if(payRandomFlag == 3){
 									String notifyurl = PropertiesUtil.getValue("wr.wx.notifyurl");
 									String posturl = PropertiesUtil.getValue("wr.wx.payurl");
 									String usercode = PropertiesUtil.getValue("wr."+prefx+".usercode");
 									data = requestWXWR(posturl,tradeno,String.valueOf(payvo.getMoney().intValue()),usercode,notifyurl,"2");
+									payvo.setPaymemno(usercode);
 								}else{
 									String notifyurl = PropertiesUtil.getValue("wr.wx.notifyurl");
 									String posturl = PropertiesUtil.getValue("wr.wx.payurl");
 									String usercode = PropertiesUtil.getValue("wr."+prefx+".usercode");
+									payvo.setPaymemno(usercode);
 									data = requestWXWR(posturl,tradeno,String.valueOf(payvo.getMoney().intValue()),usercode,notifyurl,"0");
 								}
 							} else{
@@ -260,6 +264,7 @@ public class PayController extends BaseAction {
 								record.setPaystr(postdata.toString());
 								 record.setPayresult("FAIL");
 								 record.setChannel(payvo.getPaychannel());
+								 record.setPaymemno(payvo.getPaymemno());
 								 payService.updateTPayRecord(record);
 								return callback2(requestdata.get("callback"), result, request, response);
 							}else if(data.get("code")!=null) {
@@ -271,6 +276,7 @@ public class PayController extends BaseAction {
 								record.setPaystr(postdata.toString());
 								 record.setPayresult("FAIL");
 								 record.setChannel(payvo.getPaychannel());
+								 record.setPaymemno(payvo.getPaymemno());
 								 payService.updateTPayRecord(record);
 								return callback2(requestdata.get("callback"), result, request, response);
 							}else{
@@ -284,6 +290,7 @@ public class PayController extends BaseAction {
 							    record.setPaystr(postdata.toString());
 							    record.setPayresult("SUCCESS");
 							    record.setChannel(payvo.getPaychannel());
+							    record.setPaymemno(payvo.getPaymemno());
 							    payService.updateTPayRecord(record);
 							    if(payvo.getOrderno().indexOf("-")>-1) {
 							    	data.put("orderno", StringUtils.splitPreserveAllTokens(payvo.getOrderno(),'-')[0]);
