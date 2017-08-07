@@ -37,6 +37,7 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
                return true;
             }
         }
+        
         String contentType = request.getContentType();
         String charset = request.getCharacterEncoding();
         if(StringUtils.isBlank(contentType)) {
@@ -59,7 +60,7 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
 		 partnerid =request.getParameter("partnerid");
 		 version = request.getParameter("version");
 		 key = request.getParameter("key");
-		 
+		 System.out.println("1>>>>>>"+data);
 		 Map<String,String> paramap = new HashMap<String,String>();
         if(StringUtils.isBlank(data) && StringUtils.isBlank(partnerid)) {
         	String jsonstr = XMLUtil.parseReq(request);
@@ -75,7 +76,7 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
 		        	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
 		        	return false;
 		        }
-				response.getWriter().write("您此次请求["+url+"]无权限!");
+				response.getWriter().write("{'msg':'data参数不能为空','status':'9999'}");
 				return false;
 	        }
 	         data = p.get("data");
@@ -100,7 +101,7 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
 	        	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
 	        	return false;
 	        }
-			response.getWriter().write("您此次请求["+url+"]无权限!");
+			response.getWriter().write("{'msg':'data参数不能为空','status':'9999'}");
 			return false;
 		}
 		if(StringUtils.isBlank(partnerid)){
@@ -111,7 +112,7 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
 	        	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
 	        	return false;
 	        }
-			response.getWriter().write("您此次请求["+url+"]无权限!");
+			response.getWriter().write("{'msg':'partnerid参数不能为空','status':'9999'}");
 			return false;
 		}
 		if(StringUtils.isBlank(version)){
@@ -122,7 +123,7 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
 	        	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
 	        	return false;
 	        }
-			response.getWriter().write("您此次请求["+url+"]无权限!");
+			response.getWriter().write("{'msg':'version参数不能为空','status':'9999'}");
 			return false;
 		}
 		TSysPartner tp = Constants.getPartner(partnerid);
@@ -134,7 +135,7 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
 	        	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
 	        	return false;
 	        }
-			response.getWriter().write("您此次请求["+url+"]无权限!");
+			response.getWriter().write("{'msg':'未授权调用','status':'9999'}");
 			return false;
 		}
 		if(new Date().after(tp.getEndtime())){
@@ -145,7 +146,7 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
 	        	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
 	        	return false;
 	        }
-			response.getWriter().write("您此次请求["+url+"]无权限!");
+			response.getWriter().write("{'msg':'授权已过期','status':'9999'}");
 			return false;
 		}
 		String signString = tp.getSignestring();//PropertiesUtil.getValue("pay.application.signstring");
@@ -161,7 +162,7 @@ public class AuthorIntercepter extends HandlerInterceptorAdapter{
         	response.getWriter().write(JSON.toJSONString(paramap,SerializerFeature.WriteMapNullValue));
         	return false;
         }
-        response.getWriter().write("您此次请求["+url+"]无权限!");
+        response.getWriter().write("{'msg':'Md5校验未通过','status':'9999'}");
 		return false;
     }
     
