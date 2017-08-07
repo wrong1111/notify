@@ -4,8 +4,6 @@ import javax.servlet.ServletContextEvent;
 
 import org.springframework.web.context.ContextLoaderListener;
 
-import com.game.serverutil.excutor.NotifyThread;
-
 public class InitConfigListener extends ContextLoaderListener {
 	
 	@Override
@@ -21,7 +19,7 @@ public class InitConfigListener extends ContextLoaderListener {
 			MemcacheUtil.init();
 			System.out.println("-------memcacheUtil....inited ");
 			 
-			new NotifyThread().startThread();
+//			new NotifyThread().startThread();
 			System.out.println("-------notifyThread....inited----->cost:"+(System.currentTimeMillis()-a)/1000+"s ");
 		} catch (Exception e) {
 			e.printStackTrace();
