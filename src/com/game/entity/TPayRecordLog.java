@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="t_pay_record")
+@Table(name="t_pay_record_log")
 public class TPayRecordLog extends BaseEntity{
 
 	/**
@@ -41,7 +41,7 @@ public class TPayRecordLog extends BaseEntity{
 				
 	}
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}
