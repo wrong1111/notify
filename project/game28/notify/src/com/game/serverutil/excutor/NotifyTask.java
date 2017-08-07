@@ -6,11 +6,7 @@ import java.util.Date;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -20,7 +16,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.game.entity.TPayRecordLog;
 import com.game.pojo.NotifyVo;
@@ -70,10 +65,10 @@ public class NotifyTask implements Runnable, Delayed {
 		CloseableHttpClient httpclient = null;
 		// 去通知
 		try {
-			logger.info("notify-thread-Notify Url " + notifyRecord.getUrl() + " ;notify orderno:"
+			if(logger.isInfoEnabled()) {
+				logger.info("notify-thread-Notify Url " + notifyRecord.getUrl() + " ;notify orderno:"
 					+ notifyRecord.getMerchantOrderNo() + ";notify times:" + notifyRecord.getNotifyTimes());
-
-			/** 采用 httpClient */
+			}
 			StringBuilder sb = new StringBuilder();
 			httpclient = HttpClientBuilder.create().build();
 			httppost = new HttpPost(notifyRecord.getUrl());
@@ -97,9 +92,8 @@ public class NotifyTask implements Runnable, Delayed {
 					sb.append(new String(chars, 0, len, "utf-8"));
 				}
 			}
-			if (logger.isInfoEnabled()) {
-				logger.info(notifyRecord.getUrl() + ",statusok[" + responseStatus + "]result[" + sb.toString() + "]");
-			}
+			
+			logger.error(notifyRecord.getUrl() + ",statusok[" + responseStatus + "]result[" + sb.toString() + "]");
 
 			notifyRecord.setNotifyTimes(notifyTimes + 1);
 			String successValue = notifyParam.getSuccessValue();
@@ -111,8 +105,10 @@ public class NotifyTask implements Runnable, Delayed {
 							|| responseStatus == 204 || responseStatus == 205 || responseStatus == 206)) {
 				responseMsg = result;
 				responseMsg = responseMsg.length() >= 600 ? responseMsg.substring(0, 600) : responseMsg;
+				if (logger.isInfoEnabled()) {
 				logger.info("orderno： " + notifyRecord.getMerchantOrderNo() + " HTTP_STATUS：" + responseStatus
 						+ "请求返回信息：" + responseMsg);
+				}
 				// 通知成功
 				if (responseMsg.trim().equals(successValue)) {
 					payService.updateNotify(notifyRecord.getMerchantOrderNo(), notifyRecord.getNotifyTimes(),
@@ -160,7 +156,7 @@ public class NotifyTask implements Runnable, Delayed {
 				e.printStackTrace();
 			}
 		}
-
+	  System.out.println("NotifyTask is running >>>>>>>>>>>");	
 	}
 
 }
