@@ -45,6 +45,9 @@ public class PayServiceImpl implements PayService{
 		if(StringUtils.isNotBlank(record.getQrcode())) {
 			payrecord.setQrcode(record.getQrcode());
 		}
+		if(StringUtils.isNotBlank(record.getPaymemno())) {
+			payrecord.setPaymemno(record.getPaymemno());
+		}
 		if(StringUtils.isNotBlank(record.getQrcodeurl())) {
 			payrecord.setQrcodeurl(record.getQrcodeurl());
 		}
@@ -104,9 +107,9 @@ public class PayServiceImpl implements PayService{
 		notifyStr.put("money", String.valueOf(record.getMoney().intValue()));
 		
 		Map<String,Object> param = new HashMap<String,Object>();
-		param.put("partnerid", vo.getMerchantNo());
+		param.put("partnerid", record.getMemno());
 		param.put("data", JSON.toJSON(notifyStr));
-		String md5str = Md5Util.md5_32(JSON.toJSONString(notifyStr)+Constants.getPartner(vo.getMerchantNo()).getSignestring());
+		String md5str = Md5Util.md5_32(JSON.toJSONString(notifyStr)+Constants.getPartner(record.getMemno()).getSignestring());
 		param.put("sign", md5str);
 		vo.setNoticestr(JSON.toJSONString(param));
 		vo.setStatus("");
