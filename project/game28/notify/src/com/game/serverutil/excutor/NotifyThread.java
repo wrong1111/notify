@@ -36,12 +36,14 @@ public class NotifyThread {
 			public void run() {
 				while(true) {
 					try {
-						System.out.println("DeamonThread is sleeping 5s...");
-						Thread.sleep(10000);
-						runTask();
+						Thread.sleep(100);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.error(e.getMessage(),e);
+					}
+					try {
+						runTask();
+					}catch(Exception e) {
+						logger.error(e.getMessage(),e);
 					}
 				}
 			}
@@ -53,16 +55,16 @@ public class NotifyThread {
 	}
 	
 	private void runTask() {
-		System.out.println("runTask-----");
 		ThreadPoolTaskExecutor taskE = (ThreadPoolTaskExecutor) SpringContext.getBean("taskExecutor");
 		 // 如果当前活动线程等于最大线程，那么不执行
         if (taskE.getActiveCount() < taskE.getMaxPoolSize()) {
-        	System.out.println("noitfy-thread-task>>>>>>>>> 队列长度:"+ tasks.size()+"--");
+        	if(logger.isInfoEnabled()) {
+        			logger.info("noitfy-thread-task>>>>>>>>> 队列长度:"+ tasks.size()+"--");
+        	}
             final NotifyTask task = tasks.poll();
             if (task != null) {
             	taskE.execute(new Runnable() {
                     public void run() {
-                        logger.error("noitfy-thread-"+taskE.getActiveCount() + "---------");
                         tasks.remove(task);
                         task.run();
                     }
@@ -71,7 +73,6 @@ public class NotifyThread {
         }
 	}
 	public  void startThread() {
-        logger.error("notify-thread-startThread");
         init();
         startFromDb();
     }
