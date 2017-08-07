@@ -133,6 +133,9 @@ public class PayServiceImpl implements PayService{
 			System.out.println("orderno["+orderno+"],不存在");
 			return;
 		}
+		if(record.getNoticedatetime() == null) {
+			record.setNoticedatetime(new Date());
+		}
 		record.setNoticetimes(times);
 		record.setNoticeresult(status);
 		record.setNoticelastdatetime(lasttime);
