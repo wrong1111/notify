@@ -80,7 +80,11 @@ public class NotifyController extends BaseAction{
 					if(success){//交易成功，解析data
 						if(RequestSign.checkSign(data.toJSONString(),sign, "sign")){
 							//修改入库操作
-							vo = payService.updatePayReceive(vo);
+							try {
+								vo = payService.updatePayReceive(vo);
+							}catch(Exception e) {
+								log.error("recharge--weixinpay["+keyCode+"]-orderno=["+tradeno+"],修改入库异常.");
+							}
 							if("1".equals(status)){
 								log.error("[recharge--weixinpay["+keyCode+"]-充值成功]");
 							}else{
@@ -157,7 +161,11 @@ public class NotifyController extends BaseAction{
 						vo.setResponseDesc(respDesc);
 						vo.setNoticestr(result);//上游接口通知的字符串
 						//修改入库操作
-						vo = payService.updatePayReceive(vo);
+						try {
+							vo = payService.updatePayReceive(vo);
+						}catch(Exception e) {
+							log.error("recharge-["+name+"，orderno="+tradeno+",修改异常]");
+						}
 						if("0000".equals(responseCode)){
 							log.error("wrong-"+name+"-recharge【"+name+"充值成功】-merNO="+merNo);
 						}else{
