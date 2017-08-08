@@ -65,7 +65,7 @@ public class PayController extends BaseAction {
 			String partnerid =	PropertiesUtil.getValue("pay.shop.partnerid");
 			String noticeurl  = PropertiesUtil.getValue("pay.shop.noticeurl");
 			String ip = super.getIpAddr(request);
-			Map<String,Object> data = processRecharge("shoppay", orderno, orderinfo.getOrder_amount().multiply(BigDecimal.valueOf(100)).toPlainString(), orderinfo.getPay_id() == 5 ?"2":"1", noticeurl, ip);;
+			Map<String,Object> data = processRecharge(partnerid, orderno, orderinfo.getOrder_amount().multiply(BigDecimal.valueOf(100)).toPlainString(), orderinfo.getPay_id() == 5 ?"2":"1", noticeurl, ip);;
 		    if(log.isInfoEnabled()) {
 		    	log.info(">>>shop-pay-result["+JSON.toJSONString(data)+"]");
 		    }
