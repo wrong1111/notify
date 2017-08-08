@@ -35,6 +35,7 @@ public class OrderServiceImpl2 implements OrderService2{
 				info.setOrder_sn(ordersn);
 				info.setOrder_id(rs.getInt("order_id"));
 				info.setOrder_amount(rs.getBigDecimal("goods_amount"));
+				info.setPay_id(rs.getInt("pay_id"));
 			}
 			return info;
 		}catch(Exception e) {
