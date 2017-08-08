@@ -78,10 +78,9 @@ public class PayController extends BaseAction {
 				model.addAttribute("money",jsonobj.getString("m"));
 				model.addAttribute("img", jsonobj.getString("img"));
 				model.addAttribute("imgurl", jsonobj.getString("imgurl"));
-			}else {
-				model.addAttribute("status", status);
-				model.addAttribute("desc", msg);
-			}
+			} 
+			model.addAttribute("status", status);
+			model.addAttribute("desc", msg);
 		}else {
 			model.addAttribute("status", "-1");
 			model.addAttribute("desc", "["+orderno+"]此订单不存在");
