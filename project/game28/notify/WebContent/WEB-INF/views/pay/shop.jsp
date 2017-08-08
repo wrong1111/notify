@@ -25,10 +25,15 @@
 	var orderno = "${orderno}";
 	var desc = "${desc}";
 	var amount = "${money}";
+	var img ="${img}";
+	var imgurl = "${imgurl}";
 	var ary = [];
 	if(status=='0'){
 		ary.push("订单["+orderno+"],金额["+amount+"]");
+		document.getElementById("jump").innerHTML= ary.join("");
+		//document.location.href=img;
 	}else{
+		ary.push("订单["+orderno+"],");
 		ary.push(desc);
 	}
 	document.getElementById("jump").innerHTML= ary.join("");
