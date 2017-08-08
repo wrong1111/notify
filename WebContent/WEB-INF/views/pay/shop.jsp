@@ -31,7 +31,7 @@
 	if(status=='0'){
 		ary.push("订单["+orderno+"],金额["+amount+"]");
 		document.getElementById("jump").innerHTML= ary.join("");
-		//document.location.href=img;
+		document.location.href=imgurl;
 	}else{
 		ary.push("订单["+orderno+"],");
 		ary.push(desc);
