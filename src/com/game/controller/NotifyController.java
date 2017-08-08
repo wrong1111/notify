@@ -1,6 +1,7 @@
 package com.game.controller;
 
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.util.Date;
 import java.util.Map;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.game.entity.EcsOrderInfo;
 import com.game.pojo.NotifyVo;
 import com.game.serverutil.excutor.NotifyParam;
 import com.game.serverutil.excutor.NotifyQueue;
@@ -23,6 +26,8 @@ import com.game.serverutil.excutor.NotifyTask;
 import com.game.serverutil.excutor.NotifyThread;
 import com.game.service.OrderService2;
 import com.game.service.PayService;
+import com.game.utils.Constants;
+import com.game.utils.Md5Util;
 import com.game.utils.PropertiesUtil;
 import com.game.utils.StringUtil;
 import com.game.utils.XMLUtil;
@@ -46,6 +51,51 @@ public class NotifyController extends BaseAction{
 	
 	@Autowired
 	OrderService2 orderService2;
+	
+	@RequestMapping("/shop")
+	public String shop(HttpServletRequest request, HttpServletResponse response) {
+		PrintWriter pw = null;
+		try {
+			pw = response.getWriter();
+			String jsonobject = XMLUtil.parseReq(request);
+			log.error("[recharge-notice]--["+jsonobject+"]");
+			if(StringUtils.isNotBlank(jsonobject)){
+				Map<String,Object> jsonmap = JSONObject.parseObject(jsonobject);
+				String partnerid=jsonmap.get("partnerid").toString();
+				String sign = jsonmap.get("sign").toString();
+				String data = jsonmap.get("data").toString();
+				
+				String md5str = Md5Util.md5_32(data+Constants.getPartner(partnerid).getSignestring());
+				if(sign.equalsIgnoreCase(md5str)) {
+					Map<String,String> datamap  = JSON.parseObject(data, Map.class);
+					String orderno = datamap.get("orderno");
+					String code = datamap.get("code");
+					String requestDesc = datamap.get("requestDesc");
+					String money = datamap.get("money");
+					//成功
+					EcsOrderInfo orderinfo = new EcsOrderInfo();
+					orderinfo.setOrder_sn(orderno);
+					if("0000".equals(code)) {
+						orderService2.updateEcsOrderStatus(orderinfo);
+						log.error("[recharge--["+orderno+"]-充值成功]");
+					}else {
+						//失败
+						log.error("[recharge--["+orderno+"]-充值失败,["+requestDesc+"]");
+					}
+					pw.write("SUCCESS");
+				}else {
+					pw.write("FAIL");
+					log.error("[recharge--["+data+"]-校验失败");
+				}
+				 
+			}
+		}catch(Exception e) {
+			pw.write("FAIL");
+			log.error(e.getMessage(),e);
+		}
+		pw.close();
+		return null;
+	}
 	
 	@RequestMapping("/weixinwr")
 	public String weixinwr(HttpServletRequest request, HttpServletResponse response){

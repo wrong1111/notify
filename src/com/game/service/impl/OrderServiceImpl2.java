@@ -15,7 +15,7 @@ import com.game.utils.DBhelper;
 @Service("orderService2")
 public class OrderServiceImpl2 implements OrderService2{
 
-	static final String ORDER_FIND_SQL = " SELECT order_id,order_sn,goods_amount FROM  ecs_order_info WHERE order_sn ='%s' ";
+	static final String ORDER_FIND_SQL = " SELECT order_id,order_sn,order_amount,goods_amount,pay_id FROM  ecs_order_info WHERE order_sn ='%s' ";
 	static final String ORDER_UPDATE_SQL = " UPDATE  ecs_order_info SET order_status=1 ,pay_status=2 ,shipping_status =3  WHERE order_sn ='%s' ";
 	@Override
 	public EcsOrderInfo findByOrdersn(String ordersn) {
