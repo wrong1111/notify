@@ -43,7 +43,7 @@
 	</target>
 
 	<target name="build" depends="prepare" description="编译 java 文件，拷贝 properties 属性配置文件到编译后的路径下">
-		<javac fork="true" executable="D:/Program Files/Java/jdk1.8.0_60/bin/javac" includeAntRuntime="no" encoding="utf-8" debug="on" srcdir="${src}" destdir="${build.dest}">
+		<javac fork="true" executable="/usr/local/jdk/bin/javac" includeAntRuntime="no" encoding="utf-8" debug="on" srcdir="${src}" destdir="${build.dest}">
 			<classpath refid="classpath" />
 		</javac>
 	</target>
