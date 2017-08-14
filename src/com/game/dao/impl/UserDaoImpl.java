@@ -60,7 +60,7 @@ public class UserDaoImpl extends HibernateEntityDao<Serializable> implements Use
 	public Page findNotify2Send(String status, int page, int pagesize) {
 		StringBuilder strBuilder = new StringBuilder();
 		strBuilder.append(
-				" select  id notifyId,memno,memno merchantNo,orderno merchantOrderNo,noticeurl url,noticetimes notifyTimes,noticelastdatetime lastNotifyTime,noticestr from t_pay_record r where 1=1 ");
+				" select  id notifyId,memno,paymemno merchantNo,orderno merchantOrderNo,noticeurl url,noticetimes notifyTimes,noticelastdatetime lastNotifyTime,noticestr from t_pay_record r where 1=1 ");
 		List<Object> param = new ArrayList<Object>();
 		if (StringUtils.isNotBlank(status)) {
 			if ("notify".equals(status)) {
