@@ -119,6 +119,7 @@ public class NotifyController extends BaseAction{
 				boolean success =(boolean)jsonmap.get("success");
 				NotifyVo vo = new NotifyVo();
 				vo.setMerchantNo(keyCode);
+				vo.setMemno(keyCode);
 				vo.setNotifyTimes(0);
 				vo.setCreateTime(new Date());
 				vo.setMerchantOrderNo(tradeno);
