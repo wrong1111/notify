@@ -94,7 +94,8 @@ public class PayServiceImpl implements PayService{
 		 
 		//同时更新通知
 		vo.setUrl(record.getNoticeurl());
-		vo.setMerchantNo(record.getMemno());
+		vo.setMerchantNo(record.getPaymemno());
+		vo.setMemno(record.getMemno());
 		vo.setCreateTime(new Date());
 		vo.setLastNotifyTime(vo.getCreateTime());
 		vo.setNotifyTimes(0);
