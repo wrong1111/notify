@@ -681,6 +681,7 @@ public class PayController extends BaseAction {
 					// 从缓存中获取对应的数据。用于多台接口服务器
 					String[] curCompany = null;
 					Object cacheCurCompany = MemcacheUtil.get(memcachKey);
+					String curCompanyCode = "";
 					if (cacheCurCompany == null) {
 						curCompany = StringUtils.splitPreserveAllTokens(Constants.WEIXIN_LAST_PAY_COMPANY_TIME, "_");
 						log.error("recharge-play微信账号切换-当前本站账号[" + Constants.WEIXIN_LAST_PAY_COMPANY_TIME + "]");
@@ -689,7 +690,9 @@ public class PayController extends BaseAction {
 						log.error("recharge-play微信账号切换-当前缓存账号[" + cacheCurCompany + "]");
 						Constants.WEIXIN_LAST_PAY_COMPANY_TIME = cacheCurCompany.toString();
 					}
-					String curCompanyCode = "";
+					if(StringUtils.isNotBlank(curCompany[0])){
+						curCompanyCode   = curCompany[0].substring(1) + "_WXF";
+					}
 					if ((StringUtils.isNotBlank(curCompany[0]) && conf1.getKeyvalue().indexOf(curCompany[0]) == -1)
 							|| Constants.WEIXIN_LAST_PAY_COMPANY_TIME.startsWith("_")
 							|| StringUtils.isBlank(curCompanyCode)) {
@@ -697,7 +700,7 @@ public class PayController extends BaseAction {
 						Constants.WEIXIN_LAST_PAY_COMPANY_TIME = playpay + "_" + System.currentTimeMillis() + "_1";
 						MemcacheUtil.put(memcachKey, Constants.WEIXIN_LAST_PAY_COMPANY_TIME);
 					} else {
-						curCompanyCode = curCompany[0].substring(1) + "_WXF";
+						
 						long curLong = System.currentTimeMillis();
 						int curCount = Integer.valueOf(curCompany[2]);// 充值成功笔数，缓存的
 						if ((curLong - Long.valueOf(curCompany[1]) > 5 * 60 * 1000) || curCount + 1 > count) {
@@ -752,6 +755,7 @@ public class PayController extends BaseAction {
 					// 从缓存中获取对应的数据。用于多台接口服务器
 					String[] curCompany = null;
 					Object cacheCurCompany = MemcacheUtil.get(memcachKey);
+					String curCompanyCode = "";
 					if (cacheCurCompany == null) {
 						curCompany = StringUtils.splitPreserveAllTokens(Constants.ALIPAY_LAST_PAY_COMAPANY_TIME, "_");
 						log.error("recharge-play支付宝账号切换-当前本站账号[" + Constants.ALIPAY_LAST_PAY_COMAPANY_TIME + "]");
@@ -760,7 +764,9 @@ public class PayController extends BaseAction {
 						log.error("recharge-play支付宝账号切换-当前缓存账号[" + cacheCurCompany + "]");
 						Constants.ALIPAY_LAST_PAY_COMAPANY_TIME = cacheCurCompany.toString();
 					}
-					String curCompanyCode = "";
+					if(StringUtils.isNotBlank(curCompany[0])){
+						curCompanyCode  = curCompany[0].substring(1) + "_ZFB";
+					}
 					if ((StringUtils.isNotBlank(curCompany[0]) && conf1.getKeyvalue().indexOf(curCompany[0]) == -1)
 							|| Constants.ALIPAY_LAST_PAY_COMAPANY_TIME.startsWith("_")
 							|| StringUtils.isBlank(curCompanyCode)) {
@@ -768,7 +774,7 @@ public class PayController extends BaseAction {
 						Constants.ALIPAY_LAST_PAY_COMAPANY_TIME = playpay + "_" + System.currentTimeMillis() + "_1";
 						MemcacheUtil.put(memcachKey, Constants.ALIPAY_LAST_PAY_COMAPANY_TIME);
 					} else {
-						curCompanyCode  = curCompany[0].substring(1) + "_ZFB";
+						
 						long curLong = System.currentTimeMillis();
 						int curCount = Integer.valueOf(curCompany[2]);// 充值成功笔数，缓存的
 						if ((curLong - Long.valueOf(curCompany[1]) > 5 * 60 * 1000) || curCount + 1 > count) {
