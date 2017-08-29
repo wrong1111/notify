@@ -157,12 +157,6 @@ public class PayController extends BaseAction {
 					result.put("msg", "money必须大于0的正整数");
 					return callback2(requestdata.get("callback"), result, request, response);
 				}
-//				if (new Integer(money) % 100 != 0) {
-//					result.put("status", "9002");
-//					result.put("msg", "money必须大于0的正整数");
-//					return callback2(requestdata.get("callback"), result, request, response);
-//				}
-
 				String channel = jsondata.get("channel").toString();
 				if (!("1".equals(channel) || "2".equals(channel))) {
 					result.put("status", "-1");
@@ -389,24 +383,43 @@ public class PayController extends BaseAction {
 	 * @param key
 	 * @return
 	 * @throws ServiceException 
-	 */
+	 * 
+	 * wyong edit 2017-08-28
+	 * 渠道统一
+	 
+	 * 
+	 * 每个通道，支付账号不同，需要处理不同支付渠道
+	 * 目前有,1 == 浦发直连，(微信不可用),2 浦发公众号（简化的),3兴业D0（微信不可用),5 兴业D1(未上线)
+	 * 
+	 * 2017-08-22 目前 ，微1086,微6455使用微信公众号，支1086,支6455使用浦发直连
+	 * */
 	private Map<String,Object> processRecharge(String partnerid,String orderno,String amount,String channel,String noticeurl,String ip){
 		Map<String,Object> d = super.SUCESS();
+		int payRandomFlag = 2;
 		try {
-			String playpay = getPayName(channel);
+			
+			TSysConfig config = sysService.findByKey("pay.channel.selector");
+			if(config!=null && StringUtils.isNotBlank(config.getKeyvalue())){
+				payRandomFlag = Integer.valueOf(config.getKeyvalue()).intValue();
+			}
+			log.error("[recharge],pay.random.flag=>"+payRandomFlag+",config.value=>"+config.getKeyvalue());
+			
+			if("1".equals(channel)) {//微信
+					config = sysService.findByKey("pay.compay.weixin.channel");
+			}else if("2".equals(channel)) {//支付宝
+					config = sysService.findByKey("pay.company.alipay.channel");
+			}else {
+				d.put("status", "1035");
+				d.put("msg",Constants.parametermap.get("1035"));
+				return d;
+			}
+			String playpay = getPayName(channel,config==null?"":config.getKeyvalue());
 			if(StringUtils.isBlank(playpay)) {
 				d.put("status", "1035");
 				d.put("msg",Constants.parametermap.get("1035"));
 				return d;
 			}
 			if(playpay.startsWith("0#")) {
-				int payRandomFlag = 0 ;
-				TSysConfig config = sysService.findByKey("pay.channel.selector");
-				if(config!=null && StringUtils.isNotBlank(config.getKeyvalue())){
-					payRandomFlag = Integer.valueOf(config.getKeyvalue()).intValue();
-				}
-				log.error("[recharge],pay.channel.selector=>"+payRandomFlag+",config.value=>"+config.getKeyvalue());
-				
 				String[] str = StringUtils.splitPreserveAllTokens(playpay,"#");
 				playpay = str[1];
 				// 生成支付信息
@@ -427,7 +440,74 @@ public class PayController extends BaseAction {
 					try{
 						String tradeno = payvo.getOrderno();
 						Map<String,Object> data = null;
-						if(playpay.startsWith("微") && playpay.length() == 5){
+						
+						if(playpay.length() == 7 &&  playpay.startsWith("P")) {//浦发通道
+							log.error("--recharege--playpay-->>"+playpay);
+							String prefx = playpay.substring(playpay.length()-4);
+							payvo.setPaychannel(playpay);
+							if(playpay.startsWith("PZ微")) {
+								//目前不支持微信扫码
+								String productid = "0108";// 
+								String notifyurl = PropertiesUtil.getValue("wr."+prefx+".notifyurl");
+//								String merNo = 	PropertiesUtil.getValue("wr."+prefx+".merNo");
+//								String returnurl=PropertiesUtil.getValue("wr."+prefx+".returnurl");
+//								String privateKeyPath = PropertiesUtil.getValue("wr."+prefx+".private_key_path");
+//								String publicKeyPath = PropertiesUtil.getValue("wr."+prefx+".public_key_path");
+//								String posturl =  PropertiesUtil.getValue("wr."+prefx+".url");
+//								String subMchId =PropertiesUtil.getValue("wr."+prefx+".wx.subMchId");
+//								data =  requestWR(posturl,merNo,subMchId,returnurl,notifyurl,privateKeyPath,publicKeyPath,amount, tradeno, productid, "10", c);
+								//payvo.setPaymemno(merNo);
+							}else if(playpay.startsWith("PG微")) {
+								//连接浦发 公众号
+								String notifyurl = PropertiesUtil.getValue("wr.wx.notifyurl");
+								String posturl = PropertiesUtil.getValue("wr.wx.payurl");
+								String usercode = PropertiesUtil.getValue("wr."+prefx+".usercode");
+								data = requestWXWR(posturl,tradeno,amount,usercode,notifyurl,"0");
+								payvo.setPaymemno(usercode);
+							}else if (playpay.startsWith("PZ支")){
+								String productid = "0119";// 
+								String merNo = 	PropertiesUtil.getValue("wr."+prefx+".merNo");
+								String returnurl=PropertiesUtil.getValue("wr."+prefx+".returnurl");
+								String notifyurl = PropertiesUtil.getValue("wr."+prefx+".notifyurl");
+								String privateKeyPath = PropertiesUtil.getValue("wr."+prefx+".private_key_path");
+								String publicKeyPath = PropertiesUtil.getValue("wr."+prefx+".public_key_path");
+								String posturl =  PropertiesUtil.getValue("wr."+prefx+".url");
+								String subMchId =PropertiesUtil.getValue("wr."+prefx+".ali.subMchId");
+								data =  requestWR(posturl,merNo,subMchId,returnurl,notifyurl,privateKeyPath,publicKeyPath,payvo.getMoney().toPlainString(), tradeno, productid, "10", c);
+								payvo.setPaymemno(merNo);
+							}else if(playpay.startsWith("PG支")){
+								String notifyurl = PropertiesUtil.getValue("wr.wx.notifyurl");
+								String posturl = PropertiesUtil.getValue("wr.wx.payurl");
+								String usercode = PropertiesUtil.getValue("wr."+prefx+".usercode");
+								payvo.setPaymemno(usercode);
+								data = requestWXWR(posturl,tradeno,String.valueOf(payvo.getMoney().intValue()),usercode,notifyurl,"0");
+							}else {
+								d.put("status", "1035");
+								d.put("msg",Constants.parametermap.get("1035"));
+								return d;
+							}
+						}else if(playpay.length() == 7 &&  playpay.startsWith("X")) {//兴业通道
+							log.error("--recharege--playpay-->>"+playpay);
+							String prefx = playpay.substring(playpay.length()-4);
+							payvo.setPaychannel(playpay);
+							if(playpay.startsWith("X0微") || playpay.startsWith("X0支")){//兴业D0通道
+								String notifyurl = PropertiesUtil.getValue("wr.wx.notifyurl");
+								String posturl = PropertiesUtil.getValue("wr.wx.payurl");
+								String usercode = PropertiesUtil.getValue("wr."+prefx+".usercode");
+								data = requestWXWR(posturl,tradeno,String.valueOf(payvo.getMoney().intValue()),usercode,notifyurl,"2");
+								payvo.setPaymemno(usercode);
+							}else if(playpay.startsWith("X1微")|| playpay.startsWith("X1支")){//兴业D1通道
+								String notifyurl = PropertiesUtil.getValue("wr.wx.notifyurl");
+								String posturl = PropertiesUtil.getValue("wr.wx.payurl");
+								String usercode = PropertiesUtil.getValue("wr."+prefx+".usercode");
+								data = requestWXWR(posturl,tradeno,String.valueOf(payvo.getMoney().intValue()),usercode,notifyurl,"3");
+								payvo.setPaymemno(usercode);
+							}else{
+								d.put("status", "1035");
+								d.put("msg",Constants.parametermap.get("1035"));
+								return d; 
+							}
+						}else	if(playpay.startsWith("微") && playpay.length() == 5){
 							log.error("--recharege--playpay-->>"+playpay);
 							String prefx = playpay.substring(1);
 							String productid = "0108";
@@ -447,8 +527,10 @@ public class PayController extends BaseAction {
 							String posturl = PropertiesUtil.getValue("wr.wx.payurl");
 							String usercode = PropertiesUtil.getValue("wr."+prefx+".usercode");
 							payvo.setPaymemno(usercode);
-							if(payRandomFlag == 3){//连接除浦发以外的通道
+							if(payRandomFlag == 3){//兴业D0
 								data = requestWXWR(posturl,tradeno,String.valueOf(payvo.getMoney().intValue()),usercode,notifyurl,"2");							
+							}if(payRandomFlag == 5){//兴业D1
+								data = requestWXWR(posturl,tradeno,String.valueOf(payvo.getMoney().intValue()),usercode,notifyurl,"3");							
 							}else{ 
 								//连接浦发
 								data = requestWXWR(posturl,tradeno,String.valueOf(payvo.getMoney().intValue()),usercode,notifyurl,"0");
@@ -458,7 +540,7 @@ public class PayController extends BaseAction {
 							String prefx = playpay.substring(1);
 							String productid = "0119";//支付宝扫码
 							payvo.setPaychannel(prefx+"_ZFB");
-							if(payRandomFlag == 1 || (payRandomFlag == 2 && day%2 == 0 ) ){
+							if(payRandomFlag == 1){
 								String merNo = 	PropertiesUtil.getValue("wr."+prefx+".merNo");
 								String returnurl=PropertiesUtil.getValue("wr."+prefx+".returnurl");
 								String notifyurl = PropertiesUtil.getValue("wr."+prefx+".notifyurl");
@@ -474,6 +556,12 @@ public class PayController extends BaseAction {
 								String usercode = PropertiesUtil.getValue("wr."+prefx+".usercode");
 								data = requestWXWR(posturl,tradeno,String.valueOf(payvo.getMoney().intValue()),usercode,notifyurl,"2");
 								payvo.setPaymemno(usercode);
+							}else if(payRandomFlag == 5){
+								String notifyurl = PropertiesUtil.getValue("wr.wx.notifyurl");
+								String posturl = PropertiesUtil.getValue("wr.wx.payurl");
+								String usercode = PropertiesUtil.getValue("wr."+prefx+".usercode");
+								data = requestWXWR(posturl,tradeno,String.valueOf(payvo.getMoney().intValue()),usercode,notifyurl,"3");
+								payvo.setPaymemno(usercode);
 							}else{
 								String notifyurl = PropertiesUtil.getValue("wr.wx.notifyurl");
 								String posturl = PropertiesUtil.getValue("wr.wx.payurl");
@@ -484,7 +572,6 @@ public class PayController extends BaseAction {
 						} else{
 							d.put("status","1035");
 							d.put("msg",Constants.getParamterkey("1035"));
-							//return callback2(requestdata.get("callback"), result, request, response);
 							return d;
 						}
 						c++;
@@ -503,7 +590,6 @@ public class PayController extends BaseAction {
 							 record.setChannel(payvo.getPaychannel());
 							 record.setPaymemno(payvo.getPaymemno());
 							 payService.updateTPayRecord(record);
-							//return callback2(requestdata.get("callback"), result, request, response);
 							 return d;
 						}else if(data.get("code")!=null) {
 							d.put("status",data.get("code"));
@@ -516,7 +602,6 @@ public class PayController extends BaseAction {
 							 record.setChannel(payvo.getPaychannel());
 							 record.setPaymemno(payvo.getPaymemno());
 							 payService.updateTPayRecord(record);
-							//return callback2(requestdata.get("callback"), result, request, response);
 							 return d;
 						}else{
 							data.put("m",payvo.getMoney().toPlainString());
@@ -536,9 +621,6 @@ public class PayController extends BaseAction {
 						    }
 						    d.put("data", JSON.toJSON(data));
 						    return d;
-						    //result.put("data",JSON.toJSON(data));
-							//return callback2(requestdata.get("callback"), result, request, response);
-							 
 						}
 					}catch(Exception e){
 						log.error("recharge["+playpay+"]充值请求失败->"+e.getMessage(),e);
@@ -662,9 +744,12 @@ public class PayController extends BaseAction {
 		 }
 		return d;
 	}
-	private String getPayName(String channel) {
+	private String getPayName(String channel,String memchant) {
+		String playpay = "";
+		if(StringUtils.isBlank(memchant)) {
+			return "1035#";
+		}
 		try {
-			String playpay = "";
 			/**
 			 * 通过 关键值 alipay.compay.channel 控制支付宝,充值账号 weixin.compay.channel 控制微信，充值账号
 			 * 每隔5min去获取数据，优先达到30笔的，轮换账号
@@ -674,10 +759,10 @@ public class PayController extends BaseAction {
 			String memcachKey = "PAY_";
 			if ("1".equals(channel)) {// 微信充值
 				memcachKey = "weixin.compay.channel_" + memcachKey;
-				TSysConfig conf1 = sysService.findByKey("weixin.compay.channel");
-				if (conf1 != null && StringUtils.isNotBlank(conf1.getKeyvalue())) {
-					String[] companys = StringUtils.splitPreserveAllTokens(conf1.getKeyvalue(), ",");
-					log.error("recharge-play微信账号-当前配置账号[" + conf1.getKeyvalue() + "]");
+				 
+				if (StringUtils.isNotBlank(memchant)) {
+					String[] companys = StringUtils.splitPreserveAllTokens(memchant, ",");
+					log.error("recharge-play微信账号-当前配置账号[" + memchant + "]");
 					// 从缓存中获取对应的数据。用于多台接口服务器
 					String[] curCompany = null;
 					Object cacheCurCompany = MemcacheUtil.get(memcachKey);
@@ -691,9 +776,9 @@ public class PayController extends BaseAction {
 						Constants.WEIXIN_LAST_PAY_COMPANY_TIME = cacheCurCompany.toString();
 					}
 					if(StringUtils.isNotBlank(curCompany[0])){
-						curCompanyCode   = curCompany[0].substring(1) + "_WXF";
+						curCompanyCode   = curCompany[0];
 					}
-					if ((StringUtils.isNotBlank(curCompany[0]) && conf1.getKeyvalue().indexOf(curCompany[0]) == -1)
+					if ((StringUtils.isNotBlank(curCompany[0]) && memchant.indexOf(curCompany[0]) == -1)
 							|| Constants.WEIXIN_LAST_PAY_COMPANY_TIME.startsWith("_")
 							|| StringUtils.isBlank(curCompanyCode)) {
 						playpay = companys[0];
@@ -743,15 +828,15 @@ public class PayController extends BaseAction {
 
 					}
 				} else {
-					return "1033#" + Constants.parametermap.get("1033");
+					return "1035#" + Constants.parametermap.get("1035");
 				}
 
 			} else if ("2".equals(channel)) {// 支付宝充值
 				memcachKey = "alipay.compay.channel_" + memcachKey;
-				TSysConfig conf1 = sysService.findByKey("alipay.compay.channel");
-				if (conf1 != null && StringUtils.isNotBlank(conf1.getKeyvalue())) {
-					log.error("recharge-play支付宝账号-当前配置账号[" + conf1.getKeyvalue() + "]");
-					String[] companys = StringUtils.splitPreserveAllTokens(conf1.getKeyvalue(), ",");
+				 
+				if ( StringUtils.isNotBlank(memchant)) {
+					log.error("recharge-play支付宝账号-当前配置账号[" + memchant + "]");
+					String[] companys = StringUtils.splitPreserveAllTokens(memchant, ",");
 					// 从缓存中获取对应的数据。用于多台接口服务器
 					String[] curCompany = null;
 					Object cacheCurCompany = MemcacheUtil.get(memcachKey);
@@ -765,9 +850,9 @@ public class PayController extends BaseAction {
 						Constants.ALIPAY_LAST_PAY_COMAPANY_TIME = cacheCurCompany.toString();
 					}
 					if(StringUtils.isNotBlank(curCompany[0])){
-						curCompanyCode  = curCompany[0].substring(1) + "_ZFB";
+						curCompanyCode  = curCompany[0];
 					}
-					if ((StringUtils.isNotBlank(curCompany[0]) && conf1.getKeyvalue().indexOf(curCompany[0]) == -1)
+					if ((StringUtils.isNotBlank(curCompany[0]) && memchant.indexOf(curCompany[0]) == -1)
 							|| Constants.ALIPAY_LAST_PAY_COMAPANY_TIME.startsWith("_")
 							|| StringUtils.isBlank(curCompanyCode)) {
 						playpay = companys[0];
@@ -816,7 +901,7 @@ public class PayController extends BaseAction {
 						}
 					}
 				} else {
-					return "1033#" + Constants.getParamterkey("1033");
+					return "1035#" + Constants.getParamterkey("1035");
 				}
 			}
 			log.error("recharge-play:" + playpay);
