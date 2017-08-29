@@ -449,15 +449,15 @@ public class PayController extends BaseAction {
 								//目前不支持微信扫码
 								String productid = "0108";// 
 								String notifyurl = PropertiesUtil.getValue("wr."+prefx+".notifyurl");
-//								String merNo = 	PropertiesUtil.getValue("wr."+prefx+".merNo");
-//								String returnurl=PropertiesUtil.getValue("wr."+prefx+".returnurl");
-//								String privateKeyPath = PropertiesUtil.getValue("wr."+prefx+".private_key_path");
-//								String publicKeyPath = PropertiesUtil.getValue("wr."+prefx+".public_key_path");
-//								String posturl =  PropertiesUtil.getValue("wr."+prefx+".url");
-//								String subMchId =PropertiesUtil.getValue("wr."+prefx+".wx.subMchId");
-//								data =  requestWR(posturl,merNo,subMchId,returnurl,notifyurl,privateKeyPath,publicKeyPath,amount, tradeno, productid, "10", c);
-								//payvo.setPaymemno(merNo);
-							}else if(playpay.startsWith("PG微")) {
+								String merNo = 	PropertiesUtil.getValue("wr."+prefx+".merNo");
+								String returnurl=PropertiesUtil.getValue("wr."+prefx+".returnurl");
+								String privateKeyPath = PropertiesUtil.getValue("wr."+prefx+".private_key_path");
+								String publicKeyPath = PropertiesUtil.getValue("wr."+prefx+".public_key_path");
+								String posturl =  PropertiesUtil.getValue("wr."+prefx+".url");
+								String subMchId =PropertiesUtil.getValue("wr."+prefx+".wx.subMchId");
+								data =  requestWR(posturl,merNo,subMchId,returnurl,notifyurl,privateKeyPath,publicKeyPath,amount, tradeno, productid, "10", c);
+								payvo.setPaymemno(merNo);
+							}else if(playpay.startsWith("PG微") || playpay.startsWith("PG支")) {
 								//连接浦发 公众号
 								String notifyurl = PropertiesUtil.getValue("wr.wx.notifyurl");
 								String posturl = PropertiesUtil.getValue("wr.wx.payurl");
@@ -475,13 +475,7 @@ public class PayController extends BaseAction {
 								String subMchId =PropertiesUtil.getValue("wr."+prefx+".ali.subMchId");
 								data =  requestWR(posturl,merNo,subMchId,returnurl,notifyurl,privateKeyPath,publicKeyPath,payvo.getMoney().toPlainString(), tradeno, productid, "10", c);
 								payvo.setPaymemno(merNo);
-							}else if(playpay.startsWith("PG支")){
-								String notifyurl = PropertiesUtil.getValue("wr.wx.notifyurl");
-								String posturl = PropertiesUtil.getValue("wr.wx.payurl");
-								String usercode = PropertiesUtil.getValue("wr."+prefx+".usercode");
-								payvo.setPaymemno(usercode);
-								data = requestWXWR(posturl,tradeno,String.valueOf(payvo.getMoney().intValue()),usercode,notifyurl,"0");
-							}else {
+							} else {
 								d.put("status", "1035");
 								d.put("msg",Constants.parametermap.get("1035"));
 								return d;
